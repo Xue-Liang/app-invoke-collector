@@ -1,0 +1,11 @@
+#参数配置:
+#在宿主应用启动时可以添加以下属性进行配置
+
+#本地方法调用统计上传到中心服务器的间隔时间(单位:秒). 默认值如下:
+-Dgos.monitor.interval=300 
+
+#中心服务器地址,这个地址用来合并、保存各应用上报的数据.默认值如下:
+-Dgos.center-server.uri=http://gos.goo.com/merge-invoke-statistics.do
+
+#如果上报失败，统计数据存放在本地磁盘的临时目录路径 
+-Dgos.tmp.path=/tmp/gag-invoke-statistics/
