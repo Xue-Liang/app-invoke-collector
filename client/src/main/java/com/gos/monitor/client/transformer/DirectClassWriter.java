@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.client.transformer;
+package com.gos.monitor.client.transformer;
 
 
 import org.objectweb.asm.ClassReader;

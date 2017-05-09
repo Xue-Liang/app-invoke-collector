@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.client.entity;
+package com.gos.monitor.client.entity;
 
 
 import java.util.LinkedList;

@@ -1,6 +1,6 @@
-package com.gooagoo.monitor.client.component;
+package com.gos.monitor.client.component;
 
-import com.gooagoo.monitor.client.entity.InvokeStatisticsGroup;
+import com.gos.monitor.client.entity.InvokeStatisticsGroup;
 import com.gooagoo.monitor.common.MonitorSettings;
 import com.gooagoo.monitor.common.StringHelper;
 import com.gooagoo.monitor.common.io.SIO;

@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.client.entity;
+package com.gos.monitor.client.entity;
 
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicLong;

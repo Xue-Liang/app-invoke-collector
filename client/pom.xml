@@ -28,10 +28,10 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>
-                                com.gooagoo.monitor.client.AgentEntry
+                                com.gos.monitor.client.AgentEntry
                             </Premain-Class>
                             <Agent-Class>
-                                com.gooagoo.monitor.client.AgentEntry
+                                com.gos.monitor.client.AgentEntry
                             </Agent-Class>
                             <Built-By>Xue Liang (^_^)</Built-By>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>

@@ -1,10 +1,10 @@
-package com.gooagoo.monitor.client.execute;
+package com.gos.monitor.client.execute;
 
-import com.gooagoo.monitor.client.entity.InvokeStack;
-import com.gooagoo.monitor.client.entity.InvokeTimer;
-import com.gooagoo.monitor.client.io.TimerWriter;
+import com.gos.monitor.client.entity.InvokeStack;
+import com.gos.monitor.client.entity.InvokeTimer;
+import com.gos.monitor.client.io.TimerWriter;
 import com.gooagoo.monitor.common.MonitorSettings;
-import com.gooagoo.monitor.client.entity.InvokeStatisticsGroup;
+import com.gos.monitor.client.entity.InvokeStatisticsGroup;
 import com.gooagoo.monitor.common.io.SIO;
 
 

@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.client.io;
+package com.gos.monitor.client.io;
 
 
 import com.gooagoo.monitor.common.MonitorSettings;

@@ -1,11 +1,11 @@
-package com.gooagoo.monitor.client;
+package com.gos.monitor.client;
 
-import com.gooagoo.monitor.client.component.BasicHttpServer;
-import com.gooagoo.monitor.client.component.Register;
-import com.gooagoo.monitor.client.io.DataBagDispatcher;
-import com.gooagoo.monitor.client.transformer.InvokeTraceTransformer;
 import com.gooagoo.monitor.common.MonitorSettings;
 import com.gooagoo.monitor.common.io.SIO;
+import com.gos.monitor.client.component.BasicHttpServer;
+import com.gos.monitor.client.component.Register;
+import com.gos.monitor.client.io.DataBagDispatcher;
+import com.gos.monitor.client.transformer.InvokeTraceTransformer;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
