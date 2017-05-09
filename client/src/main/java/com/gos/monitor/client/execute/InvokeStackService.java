@@ -3,9 +3,9 @@ package com.gos.monitor.client.execute;
 import com.gos.monitor.client.entity.InvokeStack;
 import com.gos.monitor.client.entity.InvokeTimer;
 import com.gos.monitor.client.io.TimerWriter;
-import com.gooagoo.monitor.common.MonitorSettings;
+import com.gos.monitor.common.MonitorSettings;
 import com.gos.monitor.client.entity.InvokeStatisticsGroup;
-import com.gooagoo.monitor.common.io.SIO;
+import com.gos.monitor.common.io.SIO;
 
 
 /**
@@ -46,7 +46,7 @@ public class InvokeStackService {
         stack.push(timer);
 
         if (MonitorSettings.Client.Logging) {
-            SIO.info(" 第[" + Long.toString(timer.getStep()) + "]步开始 执行序列号:" + stack.getId() + " 方法:" + methodName);
+            TimerWriter.write(" 第[" + Long.toString(timer.getStep()) + "]步开始 执行序列号:" + stack.getId() + " 方法:" + methodName);
         }
     }
 
@@ -69,9 +69,8 @@ public class InvokeStackService {
             timer.finish();
         }
         //---
-
         if (MonitorSettings.Client.Logging) {
-            SIO.info(" 第[" + Long.toString(timer.getStep()) + "]步完成 执行序列号:" + stack.getId() + " 方法:" + methodName + " -耗时约:" + (timer.getElapsed() / 1_000_000) + " ms(" + timer.getElapsed() + " ns).");
+            TimerWriter.write(" 第[" + Long.toString(timer.getStep()) + "]步完成 执行序列号:" + stack.getId() + " 方法:" + methodName + " -耗时约:" + (timer.getElapsed() / 1_000_000) + " ms(" + timer.getElapsed() + " ns).");
         }
 
         if (stack.size() < 1) {
@@ -79,10 +78,6 @@ public class InvokeStackService {
         }
 
         timer.setHasException(hasException);
-
-        if (MonitorSettings.Client.IsStore) {
-            TimerWriter.write(timer.toString());
-        }
 
         InvokeStatisticsGroup.statistics(timer);
 

@@ -79,12 +79,12 @@ public class InvokeStatistics {
             errorRate *= 100;
         }
         //计算出平均每次调用耗时(毫秒)
-        long average = invoked > 0 ? (million / invoked) : 0;
+        long everytime = invoked > 0 ? (million / invoked) : 0;
         cup.append("{\"method\":\"").append(method).append("\",")
-                .append("\"times\":").append(times.longValue()).append(",")
-                .append("\"errors\":").append(exceptions.longValue()).append(",")
-                .append("\"error_rate\":").append(Double.toString(errorRate)).append(",")
-                .append("\"ms_per_invoke\":").append(Long.toString(average < 1 ? 1 : average))
+                .append("\"times\":").append(Long.toString(invoked)).append(",")
+                .append("\"errors\":").append(Long.toString(errorTotal)).append(",")
+                .append("\"errorate\":").append(Double.toString(errorRate)).append(",")
+                .append("\"everytime\":").append(Long.toString(everytime < 1 ? 1 : everytime))
                 .append("}");
         return cup.toString();
     }

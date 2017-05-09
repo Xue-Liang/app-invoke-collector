@@ -1,9 +1,7 @@
 package com.gos.monitor.client.entity;
 
-import com.gooagoo.monitor.common.MonitorSettings;
+import com.gos.monitor.common.MonitorSettings;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.Serializable;
 
 /**
@@ -39,7 +37,7 @@ public class InvokeTimer implements Serializable {
      */
     private long elapsed = -1;
     /**
-     * 方法名,格式如: com.gooagoo.base.device.impl.DeviceServiceImpl.getDevice(String id)
+     * 方法名,格式如: com.gos.base.device.impl.DeviceServiceImpl.getDevice(String id)
      */
     private String methodName;
     /**

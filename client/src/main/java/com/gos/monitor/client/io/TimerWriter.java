@@ -1,7 +1,7 @@
 package com.gos.monitor.client.io;
 
-import com.gooagoo.monitor.common.MonitorSettings;
-import com.gooagoo.monitor.common.io.SIO;
+import com.gos.monitor.common.MonitorSettings;
+import com.gos.monitor.common.io.SIO;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,7 +16,7 @@ import java.util.UUID;
  * Created by XueLiang on 2017-03-29.
  */
 public class TimerWriter {
-    private final static ByteBuffer[] Buckets = MonitorSettings.Client.IsStore ? getBuckets() : null;
+    private final static ByteBuffer[] Buckets = MonitorSettings.Client.Logging ? getBuckets() : new ByteBuffer[]{};
     /**
      * 最近一次写操作发生的时刻
      */
@@ -28,10 +28,10 @@ public class TimerWriter {
      * 初始化缓存区
      */
     static ByteBuffer[] getBuckets() {
-        final int len = MonitorSettings.Client.Buckets;
+        final int len = 16;
         ByteBuffer[] buffers = new ByteBuffer[len];
         for (int i = 0; i < len; i++) {
-            buffers[i] = ByteBuffer.allocateDirect(MonitorSettings.Client.BucketBytes);
+            buffers[i] = ByteBuffer.allocateDirect(1024 << 12);
         }
         return buffers;
     }
@@ -41,7 +41,7 @@ public class TimerWriter {
             @Override
             public void run() {
                 int seconds = 5000;
-                while (MonitorSettings.Client.IsStore) {
+                while (MonitorSettings.Client.Logging) {
                     waitFor(seconds);
                     if (System.currentTimeMillis() - WriteDiskTime > seconds) {
                         for (ByteBuffer buff : Buckets) {

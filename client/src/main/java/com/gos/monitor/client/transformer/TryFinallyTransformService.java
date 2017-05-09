@@ -1,7 +1,8 @@
 package com.gos.monitor.client.transformer;
 
 
-import com.gooagoo.monitor.common.io.SIO;
+import com.gos.monitor.common.MonitorSettings;
+import com.gos.monitor.common.io.SIO;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -15,7 +16,7 @@ import java.util.ListIterator;
  */
 class TryFinallyTransformService {
     protected String className;
-    static final String Exe = "com/gooagoo/monitor/client/execute/InvokeStackService";
+    static final String Exe = "com/gos/monitor/client/execute/InvokeStackService";
 
     TryFinallyTransformService(String className) {
         this.className = className.replaceAll("/", ".");
@@ -25,6 +26,7 @@ class TryFinallyTransformService {
         if (cn == null) {
             return;
         }
+
         for (MethodNode mn : (List<MethodNode>) cn.methods) {
             SIO.info("正在检查方法:" + this.className + "." + mn.name);
             if ("<init>".equals(mn.name) || "<clinit>".equals(mn.name)) {
@@ -36,6 +38,16 @@ class TryFinallyTransformService {
             }
             String methodName = getMethodFullName(className, mn.name, mn.desc);
 
+            if (methodName != null) {
+                if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(methodName).find()) {
+                    SIO.info("因匹配排除表达式故跳过:" + cn);
+                    continue;
+                } else if (MonitorSettings.Client.IncludePackages != null && !MonitorSettings.Client.IncludePackages.matcher(methodName).find()) {
+                    SIO.info("因不匹配采集表达式故跳过:" + cn);
+                    continue;
+                }
+            }
+
             //step 1.拿到方法的指令集
             InsnList sourceCommands = mn.instructions;
             if (sourceCommands == null) {
@@ -43,7 +55,6 @@ class TryFinallyTransformService {
             } else if (sourceCommands.size() == 0) {
                 continue;
             }
-
 
             ListIterator<AbstractInsnNode> iterator = sourceCommands.iterator();
             while (iterator.hasNext()) {
@@ -93,20 +104,27 @@ class TryFinallyTransformService {
         Type[] types = Type.getArgumentTypes(methodDesc);
         if (types != null) {
             int i = 0;
-            for (; i < types.length; i++) {
-                Type type = types[i];
+            for (; i < types.length - 1; i++) {
                 //参数类型名
-                String paramClassName = type.getClassName();
-                int ix = paramClassName.lastIndexOf('.') + 1;//remove package
-                paramClassName = paramClassName.substring(ix);
-                method.append(paramClassName);
-                if (i + 1 < types.length) {
-                    method.append(",");
-                }
+                Type type = types[i];
+                String name = getParameterType(type);
+                method.append(name).append(",");
+            }
+            if (i < types.length) {
+                //参数类型名
+                Type type = types[i];
+                String name = getParameterType(type);
+                method.append(name);
             }
         }
         method.append(")");
         return method.toString();
+    }
+
+    protected String getParameterType(Type type) {
+        String name = type.getClassName();
+        int ix = name.lastIndexOf('.') + 1;//remove package
+        return name.substring(ix);
     }
 
     protected InsnList getStartInsns(String methodName) {

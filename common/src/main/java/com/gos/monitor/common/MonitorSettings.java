@@ -116,7 +116,7 @@ public class MonitorSettings {
     public static class Client {
         public static final String AppName = getAppName();
 
-        public static final String AppOwner = getOwner();
+        public static final String AppOwner = getAppOwner();
 
         public static final String AppOwnerContact = getContact();
 
@@ -133,7 +133,7 @@ public class MonitorSettings {
         /**
          * 计时器文件扩展名
          */
-        public static final String TimerFileExtension = ".data";
+        public static final String TimerFileExtension = ".timer";
 
         /**
          * 单元分隔符(unit separator),用于 InvokeTimer 各字段之间的分隔符
@@ -158,14 +158,6 @@ public class MonitorSettings {
         public static final Pattern ExcludePackages = getExcludePackage();
 
         public static final boolean Logging = getLogging();
-
-        public static final boolean IsPush = isPush();
-
-        public static final boolean IsStore = isStore();
-
-        public static final int BucketBytes = getBucketBytes();
-
-        public static final int Buckets = getBuckets();
 
         public static final int Port = getPort();
 
@@ -199,74 +191,6 @@ public class MonitorSettings {
             }
             return false;
         }
-
-        private static boolean isPush() {
-            //gos.monitor.switch.push
-            String txt = (String) SystemProperties.get("gos.monitor.switch.push");
-            if (txt != null) {
-                try {
-                    return Boolean.parseBoolean(txt.trim());
-                } catch (Exception e) {
-
-                }
-            }
-            return false;
-        }
-
-        //
-        private static int getBucketBytes() {
-            String txt = SystemProperties.getProperty("gos.monitor.bucket.bytes");
-            if (txt == null) {
-                return 1024 << 12;
-            }
-            int ix, value;
-            if ((ix = txt.indexOf('m')) > 0 || (ix = txt.indexOf("M")) > 0 || (ix = txt.indexOf("mb")) > 0 || (ix = txt.indexOf("MB")) > 0) {
-                txt = txt.substring(0, ix);
-                try {
-                    value = Integer.parseInt(txt.trim());
-                    return (1024 << 10) * value;
-                } catch (Exception e) {
-
-                }
-            } else {
-                txt = txt.substring(0, ix);
-                try {
-                    value = Integer.parseInt(txt.trim());
-                    return 1024 * value;
-                } catch (Exception e) {
-
-                }
-            }
-            return 1024 << 12;
-        }
-
-        private static int getBuckets() {
-            String txt = SystemProperties.getProperty("gos.monitor.buckets");
-            if (txt == null) {
-                return 16;
-            }
-            try {
-                int value = Integer.parseInt(txt.trim());
-                if (value < 1) {
-                    return 16;
-                } else {
-                    value = log2(value);
-                    return 1 << value;
-                }
-            } catch (Exception e) {
-
-            }
-            return 16;
-        }
-
-        private static int log2(int value)   //递归判断一个数是2的多少次方
-        {
-            if (value == 1)
-                return 0;
-            else
-                return 1 + log2(value >> 1);
-        }
-
         private static String getContact() {
             SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Contact...");
             String appOwnerContact = (String) SystemProperties.get("gos.monitor.appOwnerContact");
@@ -279,7 +203,7 @@ public class MonitorSettings {
             return appOwnerContact;
         }
 
-        private static String getOwner() {
+        private static String getAppOwner() {
             SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Owner...");
             String appOwner = (String) SystemProperties.get("gos.monitor.appOwner");
             if (appOwner != null) {
@@ -397,13 +321,13 @@ public class MonitorSettings {
         private static String getRegistry() {
             SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载registry...");
             // 中央服务器注册接口地址
-            String cs = (String) SystemProperties.get("gos.monitor.server.registry");
+            String cs = (String) SystemProperties.get("gos.monitor.registry");
             if (cs != null) {
                 try {
                     URI uri = URI.create(cs);
                     cs = uri.toString();
                 } catch (Exception e) {
-                    SIO.info("监控中心-URL配置错误,gos.monitor.server＝" + cs + " 不是一个合法的URL");
+                    SIO.info("监控中心-URL配置错误,gos.monitor.registry＝" + cs + " 不是一个合法的URL");
                 }
             }
             SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载registry完成");

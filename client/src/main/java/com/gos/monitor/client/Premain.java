@@ -1,11 +1,10 @@
 package com.gos.monitor.client;
 
-import com.gooagoo.monitor.common.MonitorSettings;
-import com.gooagoo.monitor.common.io.SIO;
 import com.gos.monitor.client.component.BasicHttpServer;
 import com.gos.monitor.client.component.Register;
-import com.gos.monitor.client.io.DataBagDispatcher;
 import com.gos.monitor.client.transformer.InvokeTraceTransformer;
+import com.gos.monitor.common.MonitorSettings;
+import com.gos.monitor.common.io.SIO;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
@@ -13,7 +12,7 @@ import java.lang.instrument.Instrumentation;
 /**
  * Created by xue on 2016-11-16.
  */
-public class AgentEntry {
+public class Premain {
 
     /**
      * main方法执行之前调用
@@ -56,26 +55,10 @@ public class AgentEntry {
      * 启动本地队列相关线程
      */
     private static void start() {
-        if (!MonitorSettings.Client.IsPush) {
-            SIO.info("因配置[gos.monitor.switch.push=false],故不启动数据推送线程.");
+        //启动httpserver
+        final int port = BasicHttpServer.INSTANCE.start();
 
-            //启动httpserver
-            final int port = BasicHttpServer.INSTANCE.start();
-
-            //注册到中央服务器
-            Register.INSTANCE.start(port);
-        } else {
-            //step 1.启动数据推送线程
-            for (int i = 0; i < 2; i++) {
-                String threadName = "DataDispatcher-" + (i + 1);
-                SIO.info("正在启动队列消费线程:" + threadName);
-                DataBagDispatcher dispatcher = new DataBagDispatcher();
-                Thread t = new Thread(dispatcher);
-                t.setName(threadName);
-                t.start();
-            }
-        }
+        //注册到中央服务器
+        Register.INSTANCE.registry(port);
     }
-
-
 }

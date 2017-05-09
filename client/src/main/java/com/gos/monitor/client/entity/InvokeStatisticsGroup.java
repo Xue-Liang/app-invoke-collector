@@ -1,7 +1,7 @@
 package com.gos.monitor.client.entity;
 
 
-import com.gooagoo.monitor.common.MonitorSettings;
+import com.gos.monitor.common.MonitorSettings;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -81,7 +81,7 @@ public class InvokeStatisticsGroup implements Serializable {
             StringBuilder cup = new StringBuilder((128 + size - 1) + size * 156);
 
 
-            cup.append("{").append("\"stime\":").append(Long.toString(startTime)).append(",")
+            cup.append("{").append("\"begin\":").append(Long.toString(startTime)).append(",")
                     .append("\"app\":\"").append(MonitorSettings.Client.AppName).append("\",")
                     .append("\"owner\":\"").append(MonitorSettings.Client.AppOwner).append("\",")
                     .append("\"contact\":\"").append(MonitorSettings.Client.AppOwnerContact).append("\",")

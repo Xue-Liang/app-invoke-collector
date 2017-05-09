@@ -1,12 +1,13 @@
 package com.gos.monitor.client.component;
 
-import com.gooagoo.monitor.common.MonitorSettings;
-import com.gooagoo.monitor.common.Waiter;
-import com.gooagoo.monitor.common.http.HttpClient;
-import com.gooagoo.monitor.common.http.HttpRequest;
-import com.gooagoo.monitor.common.http.HttpResponse;
-import com.gooagoo.monitor.common.io.SIO;
+import com.gos.monitor.common.MonitorSettings;
+import com.gos.monitor.common.Waiter;
+import com.gos.monitor.common.http.HttpClient;
+import com.gos.monitor.common.http.HttpRequest;
+import com.gos.monitor.common.http.HttpResponse;
+import com.gos.monitor.common.io.SIO;
 
+import javax.management.monitor.Monitor;
 import java.net.URI;
 import java.nio.charset.Charset;
 
@@ -24,7 +25,7 @@ public class Register {
 
     }
 
-    public void start(final int port) {
+    public void registry(final int port) {
         if (port < 1) {
             SIO.error("监控插件未请求中央服务器进行注册.可能是因为本地端口号:[" + MonitorSettings.Client.Port + "]被占用.");
             return;
@@ -38,12 +39,11 @@ public class Register {
                 req.setHttpHeader("Content-Type", "applicationn/json;charset=UTF-8");
                 req.setHttpHeader("connection", "close");
                 String json = "{" +
-                        "\"type\": 1," +
-                        "\"serverNode\": {" +
-                        "\"ip\":\"" + MonitorSettings.Client.LocalIpV4 + "\"," +
-                        "\"port\": " + port + "," +
-                        "\"path\": \"/pull/statistics\"," +
-                        "\"serverName\": \"" + MonitorSettings.Client.AppName + "\"}}";
+                        "\"app\": \"" + MonitorSettings.Client.AppName + "\"," +
+                        "\"owner\":\"" + MonitorSettings.Client.AppOwner + "\"," +
+                        "\"contact\":" + MonitorSettings.Client.AppOwnerContact + "\"," +
+                        "\"pull.statistics\": \"http://" + MonitorSettings.Client.LocalIpV4 + ":" + port + "/pull/statistics\"," +
+                        "}}";
                 req.setRequestBody(json.getBytes(Charset.forName("UTF-8")));
                 boolean registry;
                 do {
@@ -56,16 +56,15 @@ public class Register {
                         if (resp != null && resp.getResponseBody() != null) {
                             SIO.info(new String(resp.getResponseBody(), MonitorSettings.UTF8));
                         }
-
                     } catch (Exception e) {
                         registry = false;
                         SIO.error("插件注册到:[" + MonitorSettings.Client.RegistryServer + "]时发生了异常.", e);
                     }
+                    SIO.info("插件注册到:[" + MonitorSettings.Client.RegistryServer + "]" + (registry ? "成功" : "失败") + "耗时:" + (System.nanoTime() - nano) / 1_000_000 + " ms");
 
                     if (!registry) {
                         Waiter.waitFor(Lock, 30000);
                     }
-                    SIO.info("插件注册到:[" + MonitorSettings.Client.RegistryServer + "]" + (registry ? "成功" : "失败") + "耗时:" + (System.nanoTime() - nano) / 1_000_000 + " ms");
                 } while (!registry);
             }
         };

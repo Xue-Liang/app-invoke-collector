@@ -1,7 +1,7 @@
 package com.gos.monitor.client.transformer;
 
-import com.gooagoo.monitor.common.MonitorSettings;
-import com.gooagoo.monitor.common.io.SIO;
+import com.gos.monitor.common.MonitorSettings;
+import com.gos.monitor.common.io.SIO;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -42,16 +42,6 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                 }
                 if (classBeingRedefined.isEnum()) {
                     SIO.info("跳过枚举:" + className.replace("/", "."));
-                    return null;
-                }
-            }
-
-            if (cn != null) {
-                if (MonitorSettings.Client.ExcludePackages.matcher(cn).find()) {
-                    SIO.info("因匹配排除表达式故跳过:" + cn);
-                    return null;
-                } else if (!MonitorSettings.Client.IncludePackages.matcher(cn).find()) {
-                    SIO.info("因不匹配采集表达式故跳过:" + cn);
                     return null;
                 }
             }
