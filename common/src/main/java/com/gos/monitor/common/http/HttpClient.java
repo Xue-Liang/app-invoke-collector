@@ -1,9 +1,9 @@
-package com.gooagoo.monitor.common.http;
+package com.gos.monitor.common.http;
 
 
-import com.gooagoo.monitor.common.MonitorSettings;
-import com.gooagoo.monitor.common.StringHelper;
-import com.gooagoo.monitor.common.http.HttpResponse.ResponseStatusLine;
+import com.gos.monitor.common.MonitorSettings;
+import com.gos.monitor.common.StringHelper;
+import com.gos.monitor.common.http.HttpResponse.ResponseStatusLine;
 
 import java.io.*;
 

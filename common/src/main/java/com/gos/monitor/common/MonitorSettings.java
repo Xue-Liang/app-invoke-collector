@@ -1,6 +1,6 @@
-package com.gooagoo.monitor.common;
+package com.gos.monitor.common;
 
-import com.gooagoo.monitor.common.io.SIO;
+import com.gos.monitor.common.io.SIO;
 
 import java.io.*;
 import java.net.*;
@@ -24,7 +24,7 @@ public class MonitorSettings {
         String path = System.getProperty("gos.properties.path");
         SIO.info(getDataTimeFilePath(Calendar.MILLISECOND) + "-加载:" + path + "...");
         if (path == null) {
-            path = "/home/gooagoo/agents/parameter.properties";
+            path = "/home/gos/agents/parameter.properties";
             System.getProperties().put("gos.properties.path", path);
             SIO.info(getDataTimeFilePath(Calendar.MILLISECOND) + "-未指定系统属性:[gos.properties.path],系统将使用默认值:[" + path + "]");
         }

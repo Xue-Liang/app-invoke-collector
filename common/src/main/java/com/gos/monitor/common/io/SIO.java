@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.common.io;
+package com.gos.monitor.common.io;
 
 
 import java.util.Calendar;

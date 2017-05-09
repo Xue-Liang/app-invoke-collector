@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.common.http;
+package com.gos.monitor.common.http;
 
 import java.io.Closeable;
 import java.io.IOException;

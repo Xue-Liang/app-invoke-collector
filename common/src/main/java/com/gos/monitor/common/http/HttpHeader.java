@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.common.http;
+package com.gos.monitor.common.http;
 
 import java.util.Map;
 import java.util.HashMap;

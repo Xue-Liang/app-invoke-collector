@@ -1,4 +1,4 @@
-package com.gooagoo.monitor.common;
+package com.gos.monitor.common;
 
 /**
  * Created by xue on 2017-04-07.
