@@ -42,8 +42,10 @@ public class Register {
                         "\"app\": \"" + MonitorSettings.Client.AppName + "\"," +
                         "\"owner\":\"" + MonitorSettings.Client.AppOwner + "\"," +
                         "\"contact\":" + MonitorSettings.Client.AppOwnerContact + "\"," +
-                        "\"pull.statistics\": \"http://" + MonitorSettings.Client.LocalIpV4 + ":" + port + "/pull/statistics\"," +
-                        "}}";
+                        "\"interface:{"+
+                        "\"pull\":\"http://" + MonitorSettings.Client.LocalIpV4 + ":" + port + "/pull/statistics\"," +
+                        "\"look\":\"http://" + MonitorSettings.Client.LocalIpV4 + ":" + port + "/look/statistics\"}" +
+                        "}";
                 req.setRequestBody(json.getBytes(Charset.forName("UTF-8")));
                 boolean registry;
                 do {

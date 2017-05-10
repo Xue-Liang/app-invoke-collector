@@ -35,6 +35,9 @@ class TryFinallyTransformService {
                 continue;
             } else if ("run".equals(mn.name)) {
                 continue;
+            } else if (mn.access == Opcodes.ACC_ABSTRACT) {
+                SIO.info("跳过抽象方法:" + mn.name);
+                continue;
             }
             String methodName = getMethodFullName(className, mn.name, mn.desc);
 
