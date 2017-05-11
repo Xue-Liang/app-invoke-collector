@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gos</groupId>
-  <artifactId>gag-is-client</artifactId>
+  <artifactId>gos-is-client</artifactId>
   <version>0.2</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -21,8 +21,8 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Premain-Class>com.gooagoo.monitor.client.AgentEntry</Premain-Class>
-              <Agent-Class>com.gooagoo.monitor.client.AgentEntry</Agent-Class>
+              <Premain-Class>com.gos.monitor.client.Premain</Premain-Class>
+              <Agent-Class>com.gos.monitor.client.Premain</Agent-Class>
               <Built-By>Xue Liang (^_^)</Built-By>
               <Can-Redefine-Classes>true</Can-Redefine-Classes>
               <Can-Retransform-Classes>true</Can-Retransform-Classes>

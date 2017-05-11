@@ -29,7 +29,7 @@ class TryFinallyTransformService {
 
         for (MethodNode mn : (List<MethodNode>) cn.methods) {
             String methodName = getMethodFullName(className, mn.name, mn.desc);
-            SIO.info("正在检查方法:" + this.className + "." + mn.name);
+            SIO.info("正在检查方法:" + methodName);
             if ("<init>".equals(mn.name)) {
                 SIO.info("跳过构造方法:" + methodName);
                 continue;
@@ -55,15 +55,12 @@ class TryFinallyTransformService {
                 continue;
             }
 
-
-            if (methodName != null) {
-                if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(methodName).find()) {
-                    SIO.info("因匹配排除表达式故跳过:" + cn);
-                    continue;
-                } else if (MonitorSettings.Client.IncludePackages != null && !MonitorSettings.Client.IncludePackages.matcher(methodName).find()) {
-                    SIO.info("因不匹配采集表达式故跳过:" + cn);
-                    continue;
-                }
+            if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(methodName).find()) {
+                SIO.info("因匹配排除表达式故跳过:" + cn);
+                continue;
+            } else if (MonitorSettings.Client.IncludePackages != null && !MonitorSettings.Client.IncludePackages.matcher(methodName).find()) {
+                SIO.info("因不匹配采集表达式故跳过:" + cn);
+                continue;
             }
 
             //step 1.拿到方法的指令集
