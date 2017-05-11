@@ -28,18 +28,33 @@ class TryFinallyTransformService {
         }
 
         for (MethodNode mn : (List<MethodNode>) cn.methods) {
+            String methodName = getMethodFullName(className, mn.name, mn.desc);
             SIO.info("正在检查方法:" + this.className + "." + mn.name);
-            if ("<init>".equals(mn.name) || "<clinit>".equals(mn.name)) {
-                continue;
-            } else if ("main".equals(mn.name)) {
-                continue;
-            } else if ("run".equals(mn.name)) {
-                continue;
-            } else if (mn.access == Opcodes.ACC_ABSTRACT) {
-                SIO.info("跳过抽象方法:" + mn.name);
+            if ("<init>".equals(mn.name)) {
+                SIO.info("跳过构造方法:" + methodName);
                 continue;
             }
-            String methodName = getMethodFullName(className, mn.name, mn.desc);
+            if ("<clinit>".equals(mn.name)) {
+                SIO.info("跳过静态代码块:" + methodName);
+                continue;
+            }
+            if ("main".equals(mn.name) && mn.access == (mn.access | Opcodes.ACC_STATIC | Opcodes.ACC_PUBLIC)) {
+                SIO.info("跳过主方法:" + methodName);
+                continue;
+            }
+            if ("run".equals(mn.name) && (mn.access == (Opcodes.ACC_PUBLIC & mn.access))) {
+                SIO.info("跳过run方法:" + methodName);
+                continue;
+            }
+            if (Opcodes.ACC_ABSTRACT == (Opcodes.ACC_ABSTRACT & mn.access)) {
+                SIO.info("跳过抽象方法:" + methodName);
+                continue;
+            }
+            if (Opcodes.ACC_NATIVE == (Opcodes.ACC_NATIVE & mn.access)) {
+                SIO.info("跳过本地方法:" + methodName);
+                continue;
+            }
+
 
             if (methodName != null) {
                 if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(methodName).find()) {
