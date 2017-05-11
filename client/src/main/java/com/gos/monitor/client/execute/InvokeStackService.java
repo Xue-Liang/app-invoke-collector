@@ -1,11 +1,15 @@
 package com.gos.monitor.client.execute;
 
+import com.gos.monitor.annotation.Mark;
 import com.gos.monitor.client.entity.InvokeStack;
+import com.gos.monitor.client.entity.InvokeStatisticsGroup;
 import com.gos.monitor.client.entity.InvokeTimer;
+import com.gos.monitor.client.entity.MarkMapping;
 import com.gos.monitor.client.io.TimerWriter;
 import com.gos.monitor.common.MonitorSettings;
-import com.gos.monitor.client.entity.InvokeStatisticsGroup;
 import com.gos.monitor.common.io.SIO;
+
+import java.lang.reflect.Method;
 
 
 /**
@@ -19,7 +23,6 @@ import com.gos.monitor.common.io.SIO;
  */
 public class InvokeStackService {
     private static final ThreadLocal<InvokeStack> SyncInvokeInstance = new ThreadLocal<>();
-
 
     private InvokeStackService() {
 
@@ -79,6 +82,9 @@ public class InvokeStackService {
 
         timer.setHasException(hasException);
 
+
+        mappingMark(methodName);
+
         InvokeStatisticsGroup.statistics(timer);
 
     }
@@ -91,4 +97,44 @@ public class InvokeStackService {
     public static void finishHasException(String method) {
         finish(method, true);
     }
+
+    /**
+     * 将方法和Mark注解关联起来.
+     *
+     * @param mn 方法全名
+     */
+    private static void mappingMark(String mn) {
+        if (!MarkMapping.hasKey(mn)) {
+            int ix = mn.lastIndexOf('.');
+            String clazz = mn.substring(0, ix);
+            try {
+                Class<?> cs = Class.forName(clazz);
+                Method[] ms = cs.getDeclaredMethods();
+                for (Method m : ms) {
+                    Mark mark = m.getAnnotation(Mark.class);
+                    SIO.info("mark:" + mark.toString());
+                    MarkMapping.put(getFullName(m), mark != null ? mark : null);
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    private static String getFullName(Method m) {
+        StringBuilder fullName = new StringBuilder(128);
+        fullName.append(m.getDeclaringClass().getName())
+                .append(".").append(m.getName())
+                .append("(");
+        Class<?>[] cs = m.getParameterTypes();
+        int i = 0, len = cs.length - 1;
+        for (; i < len; i++) {
+            fullName.append(cs[i].getSimpleName()).append(",");
+        }
+        if (i < cs.length) {
+            fullName.append(cs[i].getSimpleName());
+        }
+        fullName.append(")");
+        return fullName.toString();
+    }
+
 }

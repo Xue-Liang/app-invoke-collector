@@ -78,10 +78,10 @@ public class MonitorSettings {
                 hour = c.get(Calendar.HOUR_OF_DAY);
                 int minute = c.get(Calendar.MINUTE);
                 return Integer.toString(year) + File.separator +
-                        Integer.toString(month) + File.separator +
-                        Integer.toString(day) + File.separator +
-                        Integer.toString(hour) + File.separator +
-                        Integer.toString(minute) + File.separator;
+                        (month < 10 ? "0" : "") + Integer.toString(month) + File.separator +
+                        (day < 10 ? "0" : "") + Integer.toString(day) + File.separator +
+                        (hour < 10 ? "0" : "") + Integer.toString(hour) + File.separator +
+                        (minute < 10 ? "0" : "") + Integer.toString(minute) + File.separator;
             case Calendar.SECOND:
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH) + 1;
@@ -90,11 +90,11 @@ public class MonitorSettings {
                 minute = c.get(Calendar.MINUTE);
                 int second = c.get(Calendar.SECOND);
                 return Integer.toString(year) + File.separator +
-                        Integer.toString(month) + File.separator +
-                        Integer.toString(day) + File.separator +
-                        Integer.toString(hour) + File.separator +
-                        Integer.toString(minute) + File.separator +
-                        Integer.toString(second) + File.separator;
+                        (month < 10 ? "0" : "") + Integer.toString(month) + File.separator +
+                        (day < 10 ? "0" : "") + Integer.toString(day) + File.separator +
+                        (hour < 10 ? "0" : "") + Integer.toString(hour) + File.separator +
+                        (minute < 10 ? "0" : "") + Integer.toString(minute) + File.separator +
+                        (second < 10 ? "0" : "") +Integer.toString(second) + File.separator;
             default:
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH) + 1;
@@ -104,12 +104,12 @@ public class MonitorSettings {
                 second = c.get(Calendar.SECOND);
                 int ms = c.get(Calendar.MILLISECOND);
                 return Integer.toString(year) + File.separator +
-                        Integer.toString(month) + File.separator +
-                        Integer.toString(day) + File.separator +
-                        Integer.toString(hour) + File.separator +
-                        Integer.toString(minute) + File.separator +
-                        Integer.toString(second) + File.separator +
-                        Integer.toString(ms) + File.separator;
+                        (month < 10 ? "0" : "") + Integer.toString(month) + File.separator +
+                        (day < 10 ? "0" : "") + Integer.toString(day) + File.separator +
+                        (hour < 10 ? "0" : "") + Integer.toString(hour) + File.separator +
+                        (minute < 10 ? "0" : "") + Integer.toString(minute) + File.separator +
+                        (second < 10 ? "0" : "") +Integer.toString(second) + File.separator +
+                        (ms < 10 ? "0" : "") +Integer.toString(ms) + File.separator;
         }
     }
 
@@ -191,6 +191,7 @@ public class MonitorSettings {
             }
             return false;
         }
+
         private static String getContact() {
             SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Contact...");
             String appOwnerContact = (String) SystemProperties.get("gos.monitor.appOwnerContact");

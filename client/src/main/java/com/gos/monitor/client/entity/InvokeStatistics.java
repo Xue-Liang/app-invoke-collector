@@ -1,5 +1,7 @@
 package com.gos.monitor.client.entity;
 
+import com.gos.monitor.annotation.Mark;
+
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -84,8 +86,26 @@ public class InvokeStatistics {
                 .append("\"times\":").append(Long.toString(invoked)).append(",")
                 .append("\"errors\":").append(Long.toString(errorTotal)).append(",")
                 .append("\"errorate\":").append(Double.toString(errorRate)).append(",")
-                .append("\"everytime\":").append(Long.toString(everytime < 1 ? 1 : everytime))
-                .append("}");
+                .append("\"everytime\":").append(Long.toString(everytime < 1 ? 1 : everytime)).append(",")
+                .append("\"mark\":");
+        Mark mark = MarkMapping.get(this.method);
+        if (null == mark) {
+            cup.append("{}");
+        } else {
+            cup.append("{")
+                    .append("\"name\":\"").append(mark.name())
+                    .append("\",")
+                    .append("\"description\":\"")
+                    .append(mark.description())
+                    .append("\",")
+                    .append("\"maxAverageTime\":")
+                    .append(Integer.toString(mark.maxAverageTime()))
+                    .append(",")
+                    .append("\"maxError\":")
+                    .append(Integer.toString(mark.maxError()))
+                    .append("}");
+        }
+        cup.append("}");
         return cup.toString();
     }
 }

@@ -4,7 +4,7 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.gos</groupId>
-    <artifactId>gag-is-client</artifactId>
+    <artifactId>gos-is-client</artifactId>
     <version>0.2</version>
     <packaging>jar</packaging>
     <build>
@@ -28,10 +28,10 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>
-                                com.gos.monitor.client.AgentEntry
+                                com.gos.monitor.client.Premain
                             </Premain-Class>
                             <Agent-Class>
-                                com.gos.monitor.client.AgentEntry
+                                com.gos.monitor.client.Premain
                             </Agent-Class>
                             <Built-By>Xue Liang (^_^)</Built-By>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
@@ -105,6 +105,12 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-tree</artifactId>
             <version>5.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.gos</groupId>
+            <artifactId>gos-is-annotation</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
 
