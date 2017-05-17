@@ -5,7 +5,10 @@ import com.gos.monitor.common.io.SIO;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -22,66 +25,66 @@ public class MonitorSettings {
 
     static {
         String path = System.getProperty("gos.properties.path");
-        SIO.info(getDataTimeFilePath(Calendar.MILLISECOND) + "-加载:" + path + "...");
+        SIO.info(getDataTime(Calendar.MILLISECOND, "-") + "-加载:" + path + "...");
         if (path == null) {
             path = "/home/gos/agents/parameter.properties";
             System.getProperties().put("gos.properties.path", path);
-            SIO.info(getDataTimeFilePath(Calendar.MILLISECOND) + "-未指定系统属性:[gos.properties.path],系统将使用默认值:[" + path + "]");
+            SIO.info(getDataTime(Calendar.MILLISECOND, "-") + "-未指定系统属性:[gos.properties.path],系统将使用默认值:[" + path + "]");
         }
         File f = new File(path);
         if (!f.exists()) {
-            SIO.info(getDataTimeFilePath(Calendar.MILLISECOND) + "gos.properties.path=" + path + " 不存在...");
+            SIO.info(getDataTime(Calendar.MILLISECOND, "-") + "gos.properties.path=" + path + " 不存在...");
         } else {
             try (InputStream is = new FileInputStream(f)) {
                 SystemProperties.load(is);
             } catch (IOException e) {
-                SIO.error(getDataTimeFilePath(Calendar.MILLISECOND) + "-加载:" + path + "时发生异常...", e);
+                SIO.error(getDataTime(Calendar.MILLISECOND, "-") + "-加载:" + path + "时发生异常...", e);
             }
         }
-        SIO.info(getDataTimeFilePath(Calendar.MILLISECOND) + "-加载:" + path + "完成");
+        SIO.info(getDataTime(Calendar.MILLISECOND, "-") + "-加载:" + path + "完成");
     }
 
-    public static final String getDataTimeFilePath(int unit) {
+    public static final String getDataTime(int unit, String separator) {
         Calendar c = Calendar.getInstance(Locale.PRC);
 
         switch (unit) {
 
             case Calendar.YEAR:
                 int year = c.get(Calendar.YEAR);
-                return Integer.toString(year) + File.separator;
+                return Integer.toString(year) + separator;
             case Calendar.MONTH:
                 year = c.get(Calendar.YEAR);
                 int month = c.get(Calendar.MONTH) + 1;
-                return Integer.toString(year) + File.separator +
-                        Integer.toString(month) + File.separator;
+                return Integer.toString(year) + separator +
+                        Integer.toString(month) + separator;
 
             case Calendar.DAY_OF_MONTH:
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH) + 1;
                 int day = c.get(Calendar.DAY_OF_MONTH);
-                return Integer.toString(year) + File.separator +
-                        Integer.toString(month) + File.separator +
-                        Integer.toString(day) + File.separator;
+                return Integer.toString(year) + separator +
+                        Integer.toString(month) + separator +
+                        Integer.toString(day);
             case Calendar.HOUR_OF_DAY:
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH) + 1;
                 day = c.get(Calendar.DAY_OF_MONTH);
                 int hour = c.get(Calendar.HOUR_OF_DAY);
-                return Integer.toString(year) + File.separator +
-                        Integer.toString(month) + File.separator +
-                        Integer.toString(day) + File.separator +
-                        Integer.toString(hour) + File.separator;
+                return Integer.toString(year) + separator +
+                        Integer.toString(month) + separator +
+                        Integer.toString(day) + separator +
+                        Integer.toString(hour);
             case Calendar.MINUTE:
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH) + 1;
                 day = c.get(Calendar.DAY_OF_MONTH);
                 hour = c.get(Calendar.HOUR_OF_DAY);
                 int minute = c.get(Calendar.MINUTE);
-                return Integer.toString(year) + File.separator +
-                        (month < 10 ? "0" : "") + Integer.toString(month) + File.separator +
-                        (day < 10 ? "0" : "") + Integer.toString(day) + File.separator +
-                        (hour < 10 ? "0" : "") + Integer.toString(hour) + File.separator +
-                        (minute < 10 ? "0" : "") + Integer.toString(minute) + File.separator;
+                return Integer.toString(year) + separator +
+                        (month < 10 ? "0" : "") + Integer.toString(month) + separator +
+                        (day < 10 ? "0" : "") + Integer.toString(day) + separator +
+                        (hour < 10 ? "0" : "") + Integer.toString(hour) + separator +
+                        (minute < 10 ? "0" : "") + Integer.toString(minute);
             case Calendar.SECOND:
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH) + 1;
@@ -89,12 +92,12 @@ public class MonitorSettings {
                 hour = c.get(Calendar.HOUR_OF_DAY);
                 minute = c.get(Calendar.MINUTE);
                 int second = c.get(Calendar.SECOND);
-                return Integer.toString(year) + File.separator +
-                        (month < 10 ? "0" : "") + Integer.toString(month) + File.separator +
-                        (day < 10 ? "0" : "") + Integer.toString(day) + File.separator +
-                        (hour < 10 ? "0" : "") + Integer.toString(hour) + File.separator +
-                        (minute < 10 ? "0" : "") + Integer.toString(minute) + File.separator +
-                        (second < 10 ? "0" : "") +Integer.toString(second) + File.separator;
+                return Integer.toString(year) + separator +
+                        (month < 10 ? "0" : "") + Integer.toString(month) + separator +
+                        (day < 10 ? "0" : "") + Integer.toString(day) + separator +
+                        (hour < 10 ? "0" : "") + Integer.toString(hour) + separator +
+                        (minute < 10 ? "0" : "") + Integer.toString(minute) + separator +
+                        (second < 10 ? "0" : "") + Integer.toString(second);
             default:
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH) + 1;
@@ -103,13 +106,13 @@ public class MonitorSettings {
                 minute = c.get(Calendar.MINUTE);
                 second = c.get(Calendar.SECOND);
                 int ms = c.get(Calendar.MILLISECOND);
-                return Integer.toString(year) + File.separator +
-                        (month < 10 ? "0" : "") + Integer.toString(month) + File.separator +
-                        (day < 10 ? "0" : "") + Integer.toString(day) + File.separator +
-                        (hour < 10 ? "0" : "") + Integer.toString(hour) + File.separator +
-                        (minute < 10 ? "0" : "") + Integer.toString(minute) + File.separator +
-                        (second < 10 ? "0" : "") +Integer.toString(second) + File.separator +
-                        (ms < 10 ? "0" : "") +Integer.toString(ms) + File.separator;
+                return Integer.toString(year) + separator +
+                        (month < 10 ? "0" : "") + Integer.toString(month) + separator +
+                        (day < 10 ? "0" : "") + Integer.toString(day) + separator +
+                        (hour < 10 ? "0" : "") + Integer.toString(hour) + separator +
+                        (minute < 10 ? "0" : "") + Integer.toString(minute) + separator +
+                        (second < 10 ? "0" : "") + Integer.toString(second) + separator +
+                        (ms < 10 ? "0" : "") + Integer.toString(ms);
         }
     }
 
@@ -126,10 +129,7 @@ public class MonitorSettings {
          * class文件被修改后,存放的路径
          */
         public static final String WeavedClassesFileBase = getWeavedClassesFileBase();
-        /**
-         * 计时器的计时数据,保存于此目录下
-         */
-        public static final String TimerFileBase = getTimerFileBase();
+
         /**
          * 计时器文件扩展名
          */
@@ -193,31 +193,31 @@ public class MonitorSettings {
         }
 
         private static String getContact() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Contact...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载Contact...");
             String appOwnerContact = (String) SystemProperties.get("gos.monitor.appOwnerContact");
             if (appOwnerContact != null) {
                 appOwnerContact = appOwnerContact.trim();
             } else {
                 appOwnerContact = "";
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Contact完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载Contact完成");
             return appOwnerContact;
         }
 
         private static String getAppOwner() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Owner...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载Owner...");
             String appOwner = (String) SystemProperties.get("gos.monitor.appOwner");
             if (appOwner != null) {
                 appOwner = appOwner.trim();
             } else {
                 appOwner = "";
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Owner完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载Owner完成");
             return appOwner;
         }
 
         private static String getAppName() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载AppName...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载AppName...");
             String appName = (String) SystemProperties.get("gos.monitor.appName");
             if (appName != null) {
                 appName = appName.trim();
@@ -225,12 +225,12 @@ public class MonitorSettings {
                     appName = "Unknow-App";
                 }
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载AppName完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载AppName完成");
             return appName;
         }
 
         private static boolean getLogging() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Logging...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载Logging...");
             //是否需要记录方法调用轨迹日志
             String txt = (String) SystemProperties.get("gos.monitor.switch.logging");
             boolean logging = false;
@@ -241,12 +241,12 @@ public class MonitorSettings {
 
                 }
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载Logging完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载Logging完成");
             return logging;
         }
 
         private static Pattern getExcludePackage() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载ExcludePackage...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载ExcludePackage...");
             //不需要监控的包
             String exclude = (String) SystemProperties.get("gos.monitor.exclude.packages");
             String defaultExcludePackages = "(com.gooagoo.monitor)|(com.gooagoo.container)|(com.gooagoo.*.entity)|(com.gooagoo.*.vo)|(com.gooagoo.*.log)";
@@ -261,12 +261,12 @@ public class MonitorSettings {
                     pattern = Pattern.compile(defaultExcludePackages, Pattern.CASE_INSENSITIVE);
                 }
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载ExcludePackage完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载ExcludePackage完成");
             return pattern;
         }
 
         private static Pattern getIncludePackage() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载IncludePackage...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载IncludePackage...");
             //需要监控的包
             Pattern pattern;
             String include = (String) SystemProperties.get("gos.monitor.include.packages");
@@ -281,12 +281,12 @@ public class MonitorSettings {
                     pattern = Pattern.compile(defaultIncludePackages, Pattern.CASE_INSENSITIVE);
                 }
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载IncludePackage完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载IncludePackage完成");
             return pattern;
         }
 
         private static String getIpByVersion(int version) {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载ipv" + version + "...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载ipv" + version + "...");
             // 获取本地IP地址
             String ip = null;
             try {
@@ -315,12 +315,12 @@ public class MonitorSettings {
             } catch (Exception e) {
                 SIO.info("监控中心-获取本机ip地址时发生异常.");
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载ipv" + version + "完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载ipv" + version + "完成");
             return ip == null ? "" : ip;
         }
 
         private static String getRegistry() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载registry...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载registry...");
             // 中央服务器注册接口地址
             String cs = (String) SystemProperties.get("gos.monitor.registry");
             if (cs != null) {
@@ -331,13 +331,13 @@ public class MonitorSettings {
                     SIO.info("监控中心-URL配置错误,gos.monitor.registry＝" + cs + " 不是一个合法的URL");
                 }
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载registry完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载registry完成");
             return cs == null ? "" : cs;
         }
 
         private static String getCenterServer() {
             // 统计结果中央处理服务器 http://gos.goo.com/receive.do
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载CenterServer...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载CenterServer...");
             String cs = (String) SystemProperties.get("gos.monitor.server.receive");
             if (cs != null) {
                 try {
@@ -347,12 +347,12 @@ public class MonitorSettings {
                     SIO.info("监控中心-URL配置错误,gos.monitor.server＝" + cs + " 不是一个合法的URL");
                 }
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载CenterServer完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载CenterServer完成");
             return cs == null ? "" : cs;
         }
 
         private static String getTempDirectory() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载TempDirectory...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载TempDirectory...");
             // 临时目录路径,该路径用来存放上报失败的那些统计数据
             String tmp = (String) SystemProperties.get("gos.monitor.tmp");
             if (tmp != null && (tmp = tmp.trim()).length() > 0) {
@@ -361,12 +361,12 @@ public class MonitorSettings {
                     dir.mkdirs();
                 }
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载TempDirectory完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载TempDirectory完成");
             return tmp == null ? "/tmp/is" : tmp;
         }
 
         private static String getWeavedClassesFileBase() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载WeavedClassesFileBase...");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载WeavedClassesFileBase...");
             boolean hasFileSeparator = TempDirectory != null && (TempDirectory.endsWith("/") || TempDirectory.endsWith("\\"));
             String path;
             if (hasFileSeparator) {
@@ -374,21 +374,7 @@ public class MonitorSettings {
             } else {
                 path = (TempDirectory == null ? "/tmp/is" : TempDirectory) + "/client/" + AppName + "/classes/";
             }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载WeavedClassesFileBase完成");
-            return path;
-        }
-
-        private static String getTimerFileBase() {
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载TimerFileBase...");
-
-            boolean hasSeparator = TempDirectory != null && (TempDirectory.endsWith("/") || TempDirectory.endsWith("\\"));
-            String path;
-            if (hasSeparator) {
-                path = TempDirectory + "client/" + AppName + "/timers/";
-            } else {
-                path = TempDirectory + "/client/" + AppName + "/timers/";
-            }
-            SIO.info(MonitorSettings.getDataTimeFilePath(Calendar.MILLISECOND) + "-加载TimerFileBase完成");
+            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载WeavedClassesFileBase完成");
             return path;
         }
     }

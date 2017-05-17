@@ -11,7 +11,6 @@ import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -88,13 +87,17 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             if (bytes != null && bytes.length > 0) {
                 reader = new ClassReader(bytes);
             } else {
-                SIO.info("没有修:" + cn);
+                SIO.info("因没有读取到字节码数据,所以没有修改:" + cn);
                 return null;
             }
             ClassNode node = new ClassNode();
             reader.accept(node, 0);
 
-            TryFinallyTransformService.transform(node);
+            boolean hasWeaved = TryFinallyTransformService.transform(node);
+            if (!hasWeaved) {
+                SIO.info("因此所有方法没有满足修改条件,所以没有修改:" + cn);
+                return null;
+            }
 
             ClassWriter writer = new DirectClassWriter(loader, ClassWriter.COMPUTE_FRAMES);
             node.accept(writer);

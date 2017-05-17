@@ -16,9 +16,10 @@ import java.util.ListIterator;
 class TryFinallyTransformService {
     private static final String Exe = "com/gos/monitor/client/execute/InvokeStackService";
 
-    public static void transform(final ClassNode cn) {
+    public static boolean transform(final ClassNode cn) {
+        boolean hasWeaved = false;
         if (cn == null) {
-            return;
+            return hasWeaved;
         }
         for (MethodNode mn : (List<MethodNode>) cn.methods) {
             String methodName = getMethodFullName(cn.name, mn.name, mn.desc);
@@ -95,7 +96,9 @@ class TryFinallyTransformService {
             mn.instructions = weaveCommands;
             mn.tryCatchBlocks.add(tryCatchBlock);
 
+            hasWeaved = true;
         }
+        return hasWeaved;
     }
 
     protected static String getMethodFullName(String className, String methodShortName, String methodDesc) {

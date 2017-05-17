@@ -12,4 +12,10 @@ public class Waiter {
             }
         }
     }
+
+    public static void notify(Object lock) {
+        synchronized (lock) {
+            lock.notifyAll();
+        }
+    }
 }
