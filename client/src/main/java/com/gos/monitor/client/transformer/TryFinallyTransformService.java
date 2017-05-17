@@ -1,7 +1,6 @@
 package com.gos.monitor.client.transformer;
 
 
-import com.gos.monitor.common.MonitorSettings;
 import com.gos.monitor.common.io.SIO;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -15,20 +14,14 @@ import java.util.ListIterator;
  * ---代码织入 用try-catch 来　模拟  try-finally
  */
 class TryFinallyTransformService {
-    protected String className;
-    static final String Exe = "com/gos/monitor/client/execute/InvokeStackService";
+    private static final String Exe = "com/gos/monitor/client/execute/InvokeStackService";
 
-    TryFinallyTransformService(String className) {
-        this.className = className.replaceAll("/", ".");
-    }
-
-    public void transform(ClassNode cn) {
+    public static void transform(final ClassNode cn) {
         if (cn == null) {
             return;
         }
-
         for (MethodNode mn : (List<MethodNode>) cn.methods) {
-            String methodName = getMethodFullName(className, mn.name, mn.desc);
+            String methodName = getMethodFullName(cn.name, mn.name, mn.desc);
             SIO.info("正在检查方法:" + methodName);
             if ("<init>".equals(mn.name)) {
                 SIO.info("跳过构造方法:" + methodName);
@@ -52,14 +45,6 @@ class TryFinallyTransformService {
             }
             if (Opcodes.ACC_NATIVE == (Opcodes.ACC_NATIVE & mn.access)) {
                 SIO.info("跳过本地方法:" + methodName);
-                continue;
-            }
-
-            if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(methodName).find()) {
-                SIO.info("因匹配排除表达式故跳过:" + cn);
-                continue;
-            } else if (MonitorSettings.Client.IncludePackages != null && !MonitorSettings.Client.IncludePackages.matcher(methodName).find()) {
-                SIO.info("因不匹配采集表达式故跳过:" + cn);
                 continue;
             }
 
@@ -113,7 +98,7 @@ class TryFinallyTransformService {
         }
     }
 
-    protected String getMethodFullName(String className, String methodShortName, String methodDesc) {
+    protected static String getMethodFullName(String className, String methodShortName, String methodDesc) {
         StringBuilder method = new StringBuilder(128);
         method.append(className).append(".").append(methodShortName).append("(");
         Type[] types = Type.getArgumentTypes(methodDesc);
@@ -136,13 +121,13 @@ class TryFinallyTransformService {
         return method.toString();
     }
 
-    protected String getParameterType(Type type) {
+    protected static String getParameterType(Type type) {
         String name = type.getClassName();
         int ix = name.lastIndexOf('.') + 1;//remove package
         return name.substring(ix);
     }
 
-    protected InsnList getStartInsns(String methodName) {
+    protected static InsnList getStartInsns(String methodName) {
         //方法开始处插入的指定列表
         InsnList startCommands = new InsnList();
         startCommands.add(new LdcInsnNode(methodName));
@@ -151,7 +136,7 @@ class TryFinallyTransformService {
         return startCommands;
     }
 
-    protected InsnList getFinishNoneException(String methodName) {
+    protected static InsnList getFinishNoneException(String methodName) {
         //方法结束或方法抛出异常时插入的指定列表
         InsnList finishCommands = new InsnList();
         finishCommands.add(new LdcInsnNode(methodName));
@@ -159,7 +144,7 @@ class TryFinallyTransformService {
         return finishCommands;
     }
 
-    protected InsnList getFinishHasException(String methodName) {
+    protected static InsnList getFinishHasException(String methodName) {
         //方法结束或方法抛出异常时插入的指定列表
         InsnList finishCommands = new InsnList();
         finishCommands.add(new LdcInsnNode(methodName));

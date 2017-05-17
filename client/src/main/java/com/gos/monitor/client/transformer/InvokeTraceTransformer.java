@@ -10,23 +10,33 @@ import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by xue on 2016-11-28.
  */
 public class InvokeTraceTransformer implements ClassFileTransformer {
+    private static final Executor WeavedClassFileWriter = Executors.newFixedThreadPool(16);
 
-    private static String WeavedClassesFilePath = MonitorSettings.Client.WeavedClassesFileBase;
+    private static final String WeavedClassesFileBasePath = MonitorSettings.Client.WeavedClassesFileBase;
 
     public InvokeTraceTransformer() {
 
     }
 
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader loader, final String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         String cn = className.replaceAll("/", ".");
-        byte[] data = null;
         try {
+            SIO.info("step 1- 正在检查:" + cn);
+            if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(cn).find()) {
+                SIO.info("因匹配排除表达式故跳过:" + cn);
+                return null;
+            } else if (MonitorSettings.Client.IncludePackages != null && !MonitorSettings.Client.IncludePackages.matcher(cn).find()) {
+                SIO.info("因不匹配采集表达式故跳过:" + cn);
+                return null;
+            }
             if (classBeingRedefined != null) {
                 if (classBeingRedefined.isInterface()) {
                     SIO.info("跳过接口:" + className.replace("/", "."));
@@ -45,53 +55,35 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                     return null;
                 }
             }
-
-            SIO.info("step 1- 将要修改:" + cn);
             String filePath = className + ".class";
-            SIO.info("tid:[" + Thread.currentThread().getId() + "]修改过的字节码将被保存在:" + WeavedClassesFilePath + filePath);
+            SIO.info("tid:[" + Thread.currentThread().getId() + "]修改过的字节码将被保存在:" + WeavedClassesFileBasePath + filePath);
 
             ClassReader reader;
-            byte[] bytes = this.getBytes(loader, filePath);
+            byte[] bytes = getBytes(loader, filePath);
             if (bytes != null && bytes.length > 0) {
                 reader = new ClassReader(bytes);
             } else {
-                SIO.info("无法修改类:" + cn + " 因为找不到...");
+                SIO.info("没有修:" + cn);
                 return null;
             }
             ClassNode node = new ClassNode();
             reader.accept(node, 0);
 
-            TryFinallyTransformService transformService = new TryFinallyTransformService(className);
-            transformService.transform(node);
+            TryFinallyTransformService.transform(node);
 
             ClassWriter writer = new DirectClassWriter(loader, ClassWriter.COMPUTE_FRAMES);
             node.accept(writer);
-
-            data = writer.toByteArray();
-
-            int ix = className.lastIndexOf((int) '/');
-            String packageName = className.substring(0, ix + 1);
-            String classFileName = className.substring(ix + 1);
-            String classFileDirectory = WeavedClassesFilePath + packageName;
-            File dir = new File(classFileDirectory);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            String finalFilePath = classFileDirectory + classFileName + ".class";
-            SIO.info("tid:[" + Thread.currentThread().getId() + "]修改过的字节码已被保存在:" + finalFilePath);
-            try (FileOutputStream fos = new FileOutputStream(finalFilePath)) {
-                fos.write(data);
-            } catch (Exception e) {
-                SIO.error("输出字节码文件出错.", e);
-            }
+            byte[] data = writer.toByteArray();
+            write(className, data);
+            return data;
         } catch (Throwable t) {
             SIO.error("tid:[" + Thread.currentThread().getId() + "]转换:" + cn + "时,发生异常.");
         }
-        return data;
+        return null;
     }
 
 
-    private byte[] getBytes(ClassLoader loader, String path) {
+    private static byte[] getBytes(final ClassLoader loader, final String path) {
         InputStream is = null;
         try {
             if (loader != null)
@@ -99,6 +91,8 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             else
                 is = ClassLoader.getSystemResourceAsStream(path);
         } catch (Exception e) {
+            SIO.error("读取-1:" + path + "时发生异常.", e);
+            return null;
         }
 
         if (is == null) {
@@ -106,6 +100,7 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                 if (loader != null)
                     is = loader.getResourceAsStream(path);
             } catch (Exception e) {
+                SIO.error("读取-2:" + path + "时发生异常.", e);
             }
         }
 
@@ -118,9 +113,33 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                 }
                 return bos.toByteArray();
             } catch (IOException e) {
-
+                SIO.error("读取-3:" + path + "时发生异常.", e);
             }
         }
         return null;
+    }
+
+    private static void write(final String path, final byte[] data) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                int ix = path.lastIndexOf((int) '/');
+                String folder = path.substring(0, ix + 1);
+                String name = folder.substring(ix + 1);
+                String directory = WeavedClassesFileBasePath + folder;
+                File dir = new File(directory);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                String finalFilePath = directory + name + ".class";
+                SIO.info("tid:[" + Thread.currentThread().getId() + "]修改过的字节码已被保存在:" + finalFilePath);
+                try (FileOutputStream fos = new FileOutputStream(finalFilePath)) {
+                    fos.write(data);
+                } catch (Exception e) {
+                    SIO.error("输出字节码文件出错.", e);
+                }
+            }
+        };
+        WeavedClassFileWriter.execute(r);
     }
 }

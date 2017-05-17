@@ -44,8 +44,8 @@ public class Premain {
      */
     private static void printAbstract() {
         SIO.info(
-                "使用示例:\n -Dgos.properties.path=${directory}/parameter.properties " +
-                        "\n -javaagent:{directory}/gag-is-client.jar\n\n"
+                "使用示例:\n -Dgos.properties.path=${directory}/parameter.properties \n" +
+                "           -javaagent:{directory}/gag-is-client.jar\n\n"
         );
     }
 

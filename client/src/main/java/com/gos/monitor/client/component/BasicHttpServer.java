@@ -50,7 +50,7 @@ public class BasicHttpServer {
                 SIO.info(Thread.currentThread().getName() + " 程序退出时,关闭BasicHttpServer完成");
             }
         };
-        Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + server.getLocalSocketAddress().toString());
+        Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + server == null ? "" : server.getLocalSocketAddress().toString());
         Runtime.getRuntime().addShutdownHook(hook);
     }
 
