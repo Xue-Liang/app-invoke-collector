@@ -1,6 +1,7 @@
 package com.gos.monitor.client.transformer;
 
 import com.gos.monitor.common.MonitorSettings;
+import com.gos.monitor.common.Waiter;
 import com.gos.monitor.common.io.SIO;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -10,19 +11,43 @@ import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by xue on 2016-11-28.
  */
 public class InvokeTraceTransformer implements ClassFileTransformer {
-    private static final Executor WeavedClassFileWriter = Executors.newFixedThreadPool(16);
-
+    private static final ConcurrentLinkedQueue<Runnable> WeavedClasssFiles = new ConcurrentLinkedQueue<>();
+    private static volatile boolean ExitConsumer = false;
     private static final String WeavedClassesFileBasePath = MonitorSettings.Client.WeavedClassesFileBase;
 
     public InvokeTraceTransformer() {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                while (!ExitConsumer) {
+                    Runnable r = WeavedClasssFiles.poll();
+                    if (r != null) {
+                        r.run();
+                        continue;
+                    }
 
+                    Waiter.waitFor(WeavedClasssFiles, 5000);
+                }
+            }
+        };
+        Thread consumer = new Thread(r, "WeavedClasssFiles-Conusmer");
+        consumer.start();
+
+        Runnable hook = new Runnable() {
+            @Override
+            public void run() {
+                ExitConsumer = true;
+                Waiter.notify(WeavedClasssFiles);
+            }
+        };
+        Runtime.getRuntime().addShutdownHook(new Thread(hook, "WeavedClassFiles-Hook"));
     }
 
     @Override
@@ -132,7 +157,7 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                     dir.mkdirs();
                 }
                 String finalFilePath = directory + name + ".class";
-                SIO.info("tid:[" + Thread.currentThread().getId() + "]修改过的字节码已被保存在:" + finalFilePath);
+                SIO.info("修改过的字节码已被保存在:" + finalFilePath);
                 try (FileOutputStream fos = new FileOutputStream(finalFilePath)) {
                     fos.write(data);
                 } catch (Exception e) {
@@ -140,6 +165,6 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                 }
             }
         };
-        WeavedClassFileWriter.execute(r);
+        WeavedClasssFiles.add(r);
     }
 }
