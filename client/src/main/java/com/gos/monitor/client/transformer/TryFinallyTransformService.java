@@ -22,7 +22,7 @@ class TryFinallyTransformService {
             return hasWeaved;
         }
         for (MethodNode mn : (List<MethodNode>) cn.methods) {
-            String methodName = getMethodFullName(cn.name, mn.name, mn.desc);
+            String methodName = getMethodFullName(cn.name.replace("/", "."), mn.name, mn.desc);
             SIO.info("正在检查方法:" + methodName);
             if ("<init>".equals(mn.name)) {
                 SIO.info("跳过构造方法:" + methodName);

@@ -41,6 +41,7 @@ public @interface RequireCare {
     /**
      * 允许方法的平均耗时最长时间(单位:毫秒)
      * 平均每次调用耗时超过此值，发出警报.
+     * 如果此值小于等于0,则不报警.
      *
      * @return
      */
@@ -50,8 +51,8 @@ public @interface RequireCare {
     /**
      * 　在一段时间内最多允许出现的错误数.
      * 　超过此值,发出警报.
+     *  如果此值小于等于零则不报警.
      */
     int maxError() default 0;
-
 
 }

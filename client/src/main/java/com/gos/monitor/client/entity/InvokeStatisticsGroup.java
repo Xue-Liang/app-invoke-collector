@@ -80,7 +80,6 @@ public class InvokeStatisticsGroup implements Serializable {
             final int size = set.size();
             StringBuilder cup = new StringBuilder((128 + size - 1) + size * 156);
 
-
             cup.append("{").append("\"since\":").append(Long.toString(startTime)).append(",")
                     .append("\"app\":\"").append(MonitorSettings.Client.AppName).append("\",")
                     .append("\"owner\":\"").append(MonitorSettings.Client.AppOwner).append("\",")
@@ -96,8 +95,9 @@ public class InvokeStatisticsGroup implements Serializable {
             }
             if (it.hasNext()) {
                 Map.Entry<String, InvokeStatistics> kv = it.next();
+                String methodName = kv.getKey();
                 InvokeStatistics is = kv.getValue();
-                is.setMethod(kv.getKey());
+                is.setMethod(methodName);
                 cup.append(is.toString());
             }
             cup.append("]}");

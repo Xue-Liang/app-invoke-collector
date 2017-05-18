@@ -79,8 +79,7 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                     return null;
                 }
             }
-            String filePath = className + ".class";
-            SIO.info("tid:[" + Thread.currentThread().getId() + "]修改过的字节码将被保存在:" + WeavedClassesFileBasePath + filePath);
+            final String filePath = className + ".class";
 
             ClassReader reader;
             byte[] bytes = getBytes(loader, filePath);
@@ -102,7 +101,9 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             ClassWriter writer = new DirectClassWriter(loader, ClassWriter.COMPUTE_FRAMES);
             node.accept(writer);
             byte[] data = writer.toByteArray();
-            write(className, data);
+
+            Runnable r = new WeavedClassFileWriter(className, data);
+            WeavedClasssFiles.add(r);
             return data;
         } catch (Throwable t) {
             SIO.error("tid:[" + Thread.currentThread().getId() + "]转换:" + cn + "时,发生异常.");
@@ -147,27 +148,34 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
         return null;
     }
 
-    private static void write(final String path, final byte[] data) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                int ix = path.lastIndexOf((int) '/');
-                String folder = path.substring(0, ix + 1);
-                String name = folder.substring(ix + 1);
-                String directory = WeavedClassesFileBasePath + folder;
-                File dir = new File(directory);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                String finalFilePath = directory + name + ".class";
-                SIO.info("修改过的字节码已被保存在:" + finalFilePath);
-                try (FileOutputStream fos = new FileOutputStream(finalFilePath)) {
-                    fos.write(data);
-                } catch (Exception e) {
-                    SIO.error("输出字节码文件出错.", e);
-                }
+
+    static class WeavedClassFileWriter implements Runnable {
+        private String path;
+        private byte[] data;
+
+        WeavedClassFileWriter(String path, byte[] data) {
+            this.path = path;
+            this.data = data;
+        }
+
+        @Override
+        public void run() {
+            int ix = path.lastIndexOf((int) '/');
+            String folder = this.path.substring(0, ix + 1);
+            String name = this.path.substring(ix + 1);
+            String directory = WeavedClassesFileBasePath + folder;
+            File dir = new File(directory);
+            if (!dir.exists()) {
+                dir.mkdirs();
             }
-        };
-        WeavedClasssFiles.add(r);
+            String finalFilePath = directory + name + ".class";
+            SIO.info("修改过的字节码已被保存在:" + finalFilePath);
+            try (FileOutputStream fos = new FileOutputStream(finalFilePath)) {
+                fos.write(data);
+            } catch (Exception e) {
+                SIO.error("输出字节码文件出错.", e);
+            }
+        }
+
     }
 }

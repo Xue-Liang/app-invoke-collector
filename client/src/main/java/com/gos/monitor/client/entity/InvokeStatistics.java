@@ -1,6 +1,6 @@
 package com.gos.monitor.client.entity;
 
-import com.gos.monitor.annotation.Mark;
+import com.gos.monitor.annotation.RequireCare;
 
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicLong;
@@ -87,8 +87,9 @@ public class InvokeStatistics {
                 .append("\"errors\":").append(Long.toString(errorTotal)).append(",")
                 .append("\"errorate\":").append(Double.toString(errorRate)).append(",")
                 .append("\"everytime\":").append(Long.toString(everytime < 1 ? 1 : everytime)).append(",")
-                .append("\"mark\":");
-        Mark mark = MarkMapping.get(this.method);
+                .append("\"standers\":");
+
+        RequireCare mark = RequireCareMapping.get(this.method);
         if (null == mark) {
             cup.append("{}");
         } else {

@@ -1,7 +1,7 @@
 package com.gos.test;
 
-import com.gos.monitor.annotation.Mark;
-import com.gos.monitor.client.entity.MarkMapping;
+import com.gos.monitor.annotation.RequireCare;
+import com.gos.monitor.client.entity.RequireCareMapping;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -17,12 +17,10 @@ public class Tester {
     private static final Executor executor = Executors.newFixedThreadPool(4);
 
     public static void main(String... args) {
-        int max = 4096 << 10;
-        for (int i = 0; i < max; i++) {
-            write("/tmp/is", Integer.toString(i), new byte[]{});
-        }
-        //post();
+        for (int i = 0; i < 10; i++)
+            post();
     }
+
 
     static void write(final String path, final String name, final byte[] data) {
         Runnable r = new Runnable() {
@@ -39,13 +37,13 @@ public class Tester {
         System.out.println(t.getName() + " - " + t.getId() + " - " + path + File.separator + name);
     }
 
-    @Mark(name = "平台统一短信发送模块", description = "", maxAverageTime = 5000)
+    @RequireCare(name = "平台统一短信发送模块")
     public static void post() {
         System.out.println("Hello world...");
-        System.out.println(MarkMapping.json());
+        System.out.println(RequireCareMapping.json());
     }
 
-    @Mark(name = "获取方法全名", description = "", maxAverageTime = 2000)
+    @RequireCare(name = "获取方法全名")
     public static String getFullName(Method m) {
         StringBuilder fullName = new StringBuilder(128);
         fullName.append(m.getDeclaringClass().getName())

@@ -1,10 +1,10 @@
 package com.gos.monitor.client.execute;
 
-import com.gos.monitor.annotation.Mark;
+import com.gos.monitor.annotation.RequireCare;
 import com.gos.monitor.client.entity.InvokeStack;
 import com.gos.monitor.client.entity.InvokeStatisticsGroup;
 import com.gos.monitor.client.entity.InvokeTimer;
-import com.gos.monitor.client.entity.MarkMapping;
+import com.gos.monitor.client.entity.RequireCareMapping;
 import com.gos.monitor.common.MonitorSettings;
 import com.gos.monitor.common.io.SIO;
 
@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
  * Created by xue on 16-11-23.
  */
 public class InvokeStackService {
+
     private static final ThreadLocal<InvokeStack> SyncInvokeInstance = new ThreadLocal<>();
 
     private InvokeStackService() {
@@ -82,7 +83,7 @@ public class InvokeStackService {
         timer.setHasException(hasException);
 
 
-        mappingMark(methodName);
+        mapping(methodName);
 
         InvokeStatisticsGroup.statistics(timer);
 
@@ -98,23 +99,26 @@ public class InvokeStackService {
     }
 
     /**
-     * 将方法和Mark注解关联起来.
+     * 将方法和RequireCare注解关联起来.
+     * 方便根据方法全名,得以注解信息.
      *
      * @param mn 方法全名
      */
-    private static void mappingMark(String mn) {
-        if (!MarkMapping.hasKey(mn)) {
+    private static void mapping(String mn) {
+        if (!RequireCareMapping.hasKey(mn)) {
             int ix = mn.lastIndexOf('.');
             String clazz = mn.substring(0, ix);
             try {
                 Class<?> cs = Class.forName(clazz);
                 Method[] ms = cs.getDeclaredMethods();
                 for (Method m : ms) {
-                    Mark mark = m.getAnnotation(Mark.class);
-                    SIO.info("mark:" + mark.toString());
-                    MarkMapping.put(getFullName(m), mark != null ? mark : null);
+                    RequireCare annotation = m.getAnnotation(RequireCare.class);
+                    if (annotation != null) {
+                        RequireCareMapping.put(mn, annotation);
+                    }
                 }
             } catch (Exception e) {
+                SIO.error("反射:" + clazz + "时发生异常.", e);
             }
         }
     }
