@@ -7,12 +7,13 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 用于描述被监控的接口方法.
+ * 用于描述被监控的方法的注解.
+ * 此注解一定要加到实现类的方法上.
  * Created by Xue Liang on 2017-05-11.
  */
 @Target({METHOD})
 @Retention(RUNTIME)
-public @interface Mark {
+public @interface RequireCare {
 
     /**
      * 方法的可理解的名称.
@@ -22,6 +23,13 @@ public @interface Mark {
      * @return
      */
     String name() default "";
+
+    /**
+     * 接口的重要程度.
+     *
+     * @return
+     */
+    Level level() default Level.Normal;
 
     /**
      * 方法功能的简述
@@ -44,5 +52,6 @@ public @interface Mark {
      * 　超过此值,发出警报.
      */
     int maxError() default 0;
+
 
 }
