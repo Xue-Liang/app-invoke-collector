@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Created by xue on 2016-11-28.
  */
 public class InvokeTraceTransformer implements ClassFileTransformer {
-    private static final ConcurrentLinkedQueue<Runnable> WeavedClasssFiles = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<Runnable> WeavedClasssFileQueue = new ConcurrentLinkedQueue<>();
     private static volatile boolean ExitConsumer = false;
     private static final String WeavedClassesFileBasePath = MonitorSettings.Client.WeavedClassesFileBase;
 
@@ -26,13 +26,13 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             @Override
             public void run() {
                 while (!ExitConsumer) {
-                    Runnable r = WeavedClasssFiles.poll();
+                    Runnable r = WeavedClasssFileQueue.poll();
                     if (r != null) {
                         r.run();
                         continue;
                     }
 
-                    Waiter.waitFor(WeavedClasssFiles, 5000);
+                    Waiter.waitFor(WeavedClasssFileQueue, 5000);
                 }
             }
         };
@@ -43,7 +43,7 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             @Override
             public void run() {
                 ExitConsumer = true;
-                Waiter.notify(WeavedClasssFiles);
+                Waiter.notify(WeavedClasssFileQueue);
             }
         };
         Runtime.getRuntime().addShutdownHook(new Thread(hook, "WeavedClassFiles-Hook"));
@@ -102,8 +102,8 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             node.accept(writer);
             byte[] data = writer.toByteArray();
 
-            Runnable r = new WeavedClassFileWriter(className, data);
-            WeavedClasssFiles.add(r);
+            Runnable r = new WriteClassFileTask(className, data);
+            WeavedClasssFileQueue.add(r);
             return data;
         } catch (Throwable t) {
             SIO.error("tid:[" + Thread.currentThread().getId() + "]转换:" + cn + "时,发生异常.");
@@ -113,47 +113,32 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
 
 
     private static byte[] getBytes(final ClassLoader loader, final String path) {
-        InputStream is = null;
-        try {
-            if (loader != null)
-                is = loader.getSystemResourceAsStream(path);
-            else
-                is = ClassLoader.getSystemResourceAsStream(path);
-        } catch (Exception e) {
-            SIO.error("读取-1:" + path + "时发生异常.", e);
+        if (path == null || path.length() < 1) {
             return null;
         }
-
+        InputStream is = loader != null ? loader.getSystemResourceAsStream(path) : ClassLoader.getSystemResourceAsStream(path);
         if (is == null) {
-            try {
-                if (loader != null)
-                    is = loader.getResourceAsStream(path);
-            } catch (Exception e) {
-                SIO.error("读取-2:" + path + "时发生异常.", e);
-            }
+            SIO.warn("读取-1:" + path + ",没读取到字节码数据.");
+            return null;
         }
-
-        if (is != null) {
-            try (ByteArrayOutputStream bos = new ByteArrayOutputStream(is.available())) {
-                int size = 0;
-                byte[] cup = new byte[1024];
-                while ((size = is.read(cup)) > 0) {
-                    bos.write(cup, 0, size);
-                }
-                return bos.toByteArray();
-            } catch (IOException e) {
-                SIO.error("读取-3:" + path + "时发生异常.", e);
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(is.available())) {
+            byte[] cup = new byte[1024];
+            for (int size; (size = is.read(cup)) > 0; ) {
+                bos.write(cup, 0, size);
             }
+            return bos.toByteArray();
+        } catch (IOException e) {
+            SIO.error("读取-3:" + path + "时发生异常.", e);
         }
         return null;
     }
 
 
-    static class WeavedClassFileWriter implements Runnable {
+    static class WriteClassFileTask implements Runnable {
         private String path;
         private byte[] data;
 
-        WeavedClassFileWriter(String path, byte[] data) {
+        WriteClassFileTask(String path, byte[] data) {
             this.path = path;
             this.data = data;
         }

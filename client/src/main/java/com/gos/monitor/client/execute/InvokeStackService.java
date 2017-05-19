@@ -105,21 +105,24 @@ public class InvokeStackService {
      * @param mn 方法全名
      */
     private static void mapping(String mn) {
-        if (!RequireCareMapping.hasKey(mn)) {
-            int ix = mn.lastIndexOf('.');
-            String clazz = mn.substring(0, ix);
-            try {
-                Class<?> cs = Class.forName(clazz);
-                Method[] ms = cs.getDeclaredMethods();
-                for (Method m : ms) {
-                    RequireCare annotation = m.getAnnotation(RequireCare.class);
-                    if (annotation != null) {
-                        RequireCareMapping.put(mn, annotation);
-                    }
+        //如果已经发生了映射，跳过不做覆盖.
+        if (RequireCareMapping.hasKey(mn)) {
+            return;
+        }
+
+        int ix = mn.lastIndexOf('.');
+        String clazz = mn.substring(0, ix);
+        try {
+            Class<?> cs = Class.forName(clazz);
+            Method[] ms = cs.getDeclaredMethods();
+            for (Method m : ms) {
+                RequireCare annotation = m.getAnnotation(RequireCare.class);
+                if (annotation != null) {
+                    RequireCareMapping.put(mn, annotation);
                 }
-            } catch (Exception e) {
-                SIO.error("反射:" + clazz + "时发生异常.", e);
             }
+        } catch (Exception e) {
+            SIO.error("反射:" + clazz + "时发生异常.", e);
         }
     }
 

@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RequireCareMapping {
 
-    private static final Map<String, RequireCare> Mapping = new ConcurrentHashMap<>();
+    private static final Map<String, RequireCare> Mapping = new ConcurrentHashMap<>(512);
 
     private RequireCareMapping() {
 
