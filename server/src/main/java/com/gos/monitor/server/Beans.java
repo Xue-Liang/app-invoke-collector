@@ -8,13 +8,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * Created by xue on 2017-05-19.
  */
 @Service
-public class ServerBeans {
+public class Beans {
     @Service
     public static class PageResource extends WebMvcConfigurerAdapter {
         @Override
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
             registry.addResourceHandler("/**").addResourceLocations("classpath:pages/");
         }
-
     }
 }
