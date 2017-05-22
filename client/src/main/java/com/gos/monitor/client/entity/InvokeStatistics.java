@@ -1,7 +1,5 @@
 package com.gos.monitor.client.entity;
 
-import com.gos.monitor.annotation.RequireCare;
-
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicLong;
 

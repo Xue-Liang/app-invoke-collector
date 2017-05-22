@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.gos</groupId>
     <artifactId>gos-is-client</artifactId>
-    <version>0.2</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
