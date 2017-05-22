@@ -68,30 +68,32 @@ public class InvokeStatistics {
 
     @Override
     public String toString() {
-        StringBuilder cup = new StringBuilder(256);
-
-        long million = nanotime.longValue() / 1_000_000;
         long invoked = times.longValue();
-        long errorTotal = exceptions.longValue();
-        double errorRate = 0d;
-        if (invoked > 0) {
-            BigDecimal total = new BigDecimal(invoked);
-            BigDecimal error = new BigDecimal(errorTotal);
-            errorRate = error.divide(total, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
-            errorRate *= 100;
+        if (invoked < 1) {
+            return "{}";
         }
+        long million = nanotime.longValue() / 1_000_000;
+        long errorTotal = exceptions.longValue();
+
+        BigDecimal total = new BigDecimal(invoked);
+        BigDecimal error = new BigDecimal(errorTotal);
+        double errorRate = error.divide(total, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+        errorRate *= 100;
+
         //估算出平均每次调用耗时(毫秒)
         long everytime = invoked > 0 ? (million / invoked) : 0;
 
         //估算出平均每秒能执行多少次
-        long everysec = (invoked / (million < 1 ? 1 : million)) * 1000;
+        long everysecond = (invoked / (million < 1 ? 1 : million)) * 1000;
+
+        StringBuilder cup = new StringBuilder(256);
         cup.append("{\"method\":\"").append(method).append("\",")
                 .append("\"times\":").append(Long.toString(invoked)).append(",")
-                .append("\"nanosec\":").append(Long.toString(nanotime.longValue())).append(",")
+                .append("\"nano_time\":").append(Long.toString(nanotime.longValue())).append(",")
                 .append("\"errors\":").append(Long.toString(errorTotal)).append(",")
-                .append("\"errorate\":").append(Double.toString(errorRate)).append(",")
-                .append("\"everytime\":").append(Long.toString(everytime < 1 ? 1 : everytime)).append(",")
-                .append("\"erverysec\":").append(Long.toString(everysec)).append(",")
+                .append("\"error_rate\":").append(Double.toString(errorRate)).append(",")
+                .append("\"every_time\":").append(Long.toString(everytime < 1 ? 1 : everytime)).append(",")
+                .append("\"every_second\":").append(Long.toString(everysecond)).append(",")
                 .append("\"standers\":")
                 .append(RequireCareMapping.getRequireCareAsString(this.method));
         cup.append("}");
