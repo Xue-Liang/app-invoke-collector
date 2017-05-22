@@ -80,32 +80,20 @@ public class InvokeStatistics {
             errorRate = error.divide(total, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
             errorRate *= 100;
         }
-        //计算出平均每次调用耗时(毫秒)
+        //估算出平均每次调用耗时(毫秒)
         long everytime = invoked > 0 ? (million / invoked) : 0;
+
+        //估算出平均每秒能执行多少次
+        long everysec = (invoked / (million < 1 ? 1 : million)) * 1000;
         cup.append("{\"method\":\"").append(method).append("\",")
                 .append("\"times\":").append(Long.toString(invoked)).append(",")
+                .append("\"nanosec\":").append(Long.toString(nanotime.longValue())).append(",")
                 .append("\"errors\":").append(Long.toString(errorTotal)).append(",")
                 .append("\"errorate\":").append(Double.toString(errorRate)).append(",")
                 .append("\"everytime\":").append(Long.toString(everytime < 1 ? 1 : everytime)).append(",")
-                .append("\"standers\":");
-
-        RequireCare mark = RequireCareMapping.get(this.method);
-        if (null == mark) {
-            cup.append("{}");
-        } else {
-            cup.append("{")
-                    .append("\"name\":\"").append(mark.name())
-                    .append("\",")
-                    .append("\"description\":\"")
-                    .append(mark.description())
-                    .append("\",")
-                    .append("\"maxAverageTime\":")
-                    .append(Integer.toString(mark.maxAverageTime()))
-                    .append(",")
-                    .append("\"maxError\":")
-                    .append(Integer.toString(mark.maxError()))
-                    .append("}");
-        }
+                .append("\"erverysec\":").append(Long.toString(everysec)).append(",")
+                .append("\"standers\":")
+                .append(RequireCareMapping.getRequireCareAsString(this.method));
         cup.append("}");
         return cup.toString();
     }

@@ -30,6 +30,28 @@ public class RequireCareMapping {
         return Mapping.get(method);
     }
 
+    public static String getRequireCareAsString(String method) {
+        RequireCare mark = get(method);
+        StringBuilder cup = new StringBuilder(128);
+        if (null == mark) {
+            cup.append("{}");
+        } else {
+            cup.append("{")
+                    .append("\"name\":\"").append(mark.name())
+                    .append("\",")
+                    .append("\"description\":\"")
+                    .append(mark.description())
+                    .append("\",")
+                    .append("\"maxAverageTime\":")
+                    .append(Integer.toString(mark.maxAverageTime()))
+                    .append(",")
+                    .append("\"maxError\":")
+                    .append(Integer.toString(mark.maxError()))
+                    .append("}");
+        }
+        return cup.toString();
+    }
+
     public static boolean hasKey(String method) {
         return Mapping.containsKey(method);
     }
@@ -60,4 +82,5 @@ public class RequireCareMapping {
         }
         return Mapping.toString();
     }
+
 }
