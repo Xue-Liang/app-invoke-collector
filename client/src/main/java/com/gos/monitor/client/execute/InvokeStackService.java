@@ -118,7 +118,7 @@ public class InvokeStackService {
             for (Method m : ms) {
                 RequireCare annotation = m.getAnnotation(RequireCare.class);
                 if (annotation != null) {
-                    RequireCareMapping.put(mn, annotation);
+                    RequireCareMapping.put(getFullName(m), annotation);
                 }
             }
         } catch (Exception e) {

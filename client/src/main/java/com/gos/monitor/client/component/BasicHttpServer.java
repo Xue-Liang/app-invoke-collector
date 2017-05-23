@@ -105,21 +105,6 @@ public class BasicHttpServer {
 
         Worker(Socket socket) {
             this.socket = socket;
-            try {
-                SIO.info("socket default SO_RCVBUF=" + socket.getReceiveBufferSize());
-                SIO.info("socket default SO_SNDBUF=" + socket.getSendBufferSize());
-                SIO.info("socket default SO_LINGER=" + socket.getSoLinger());
-                SIO.info("socket default SO_KEEPALIVE=" + socket.getKeepAlive());
-                SIO.info("socket default SO_TIMEOUT=" + socket.getSoTimeout());
-                SIO.info("socket default TCP_NODELAY=" + socket.getTcpNoDelay());
-                SIO.info("socket default SO_REUSEADDR=" + socket.getReuseAddress());
-                SIO.info("socket default SocketChannel＝" + socket.getChannel());
-                SIO.info("socket IP_TOS=" + socket.getTrafficClass());
-
-                SIO.info("socket OOBINLINE=" + socket.getOOBInline());
-            } catch (Exception e) {
-
-            }
         }
 
         @Override
@@ -219,7 +204,6 @@ public class BasicHttpServer {
             os.write("接口不存在.".getBytes());
             os.flush();
         }
-
     }
 
 
