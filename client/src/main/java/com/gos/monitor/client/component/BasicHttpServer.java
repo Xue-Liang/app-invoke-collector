@@ -4,7 +4,10 @@ import com.gos.monitor.client.entity.InvokeStatisticsGroup;
 import com.gos.monitor.common.MonitorSettings;
 import com.gos.monitor.common.StringHelper;
 import com.gos.monitor.common.io.SIO;
+import com.sun.org.apache.bcel.internal.generic.MONITORENTER;
 
+import javax.management.monitor.Monitor;
+import javax.management.monitor.MonitorSettingException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -149,21 +152,24 @@ public class BasicHttpServer {
          */
         private void look(OutputStream os) throws IOException {
             //ResponseStatusLine
-            os.write("HTTP/1.1 200 OK\r\n".getBytes(MonitorSettings.UTF8));
+            byte[] responseStatusLineBytes = "HTTP/1.1 200 OK\r\n".getBytes(MonitorSettings.UTF8);
 
             //Response Headers
-            os.write(("HOST:" + MonitorSettings.Client.LocalIpV4 + "\r\n").getBytes(MonitorSettings.UTF8));
-            os.write(("Content-Type:application/json;charset=UTF-8\r\n").getBytes(MonitorSettings.UTF8));
-            os.write(("Connection:close\r\n").getBytes(MonitorSettings.UTF8));
+            StringBuilder headers = new StringBuilder(512);
+            headers.append("HOST:").append(MonitorSettings.Client.LocalIpV4).append("\r\n");
+            headers.append("Content-Type:application/json;charset=UTF-8\r\n");
+            headers.append("Connection:close\r\n");
 
             //Response Body
-            String body = InvokeStatisticsGroup.view();
-            byte[] data = body.getBytes(MonitorSettings.UTF8);
-            os.write(("Content-Length:" + Integer.toString(data.length) + "\r\n").getBytes(MonitorSettings.UTF8));
-            os.write("\r\n".getBytes(MonitorSettings.UTF8));
+            InvokeStatisticsGroup.TimeGroup group = InvokeStatisticsGroup.dump();
+            String body = group.toString();
+            byte[] bodyBytes = body.getBytes(MonitorSettings.UTF8);
+            headers.append("Content-Length:").append(Integer.toString(bodyBytes.length)).append("\r\n\r\n");
 
-            os.write(data);
-            os.flush();
+            byte[] headerBytes = headers.toString().getBytes(MonitorSettings.UTF8);
+
+            this.response(os, responseStatusLineBytes, headerBytes, bodyBytes);
+
         }
 
         /**
@@ -174,22 +180,24 @@ public class BasicHttpServer {
          */
         private void pull(OutputStream os) throws IOException {
             //ResponseStatusLine
-            os.write("HTTP/1.1 200 OK\r\n".getBytes(MonitorSettings.UTF8));
+            byte[] responseStatusLineBytes = "HTTP/1.1 200 OK\r\n".getBytes(MonitorSettings.UTF8);
 
             //Response Headers
-            os.write(("HOST:" + MonitorSettings.Client.LocalIpV4 + "\r\n").getBytes(MonitorSettings.UTF8));
-            os.write(("Content-Type:application/json;charset=UTF-8\r\n").getBytes(MonitorSettings.UTF8));
-            os.write(("Connection:close\r\n").getBytes(MonitorSettings.UTF8));
+            StringBuilder headers = new StringBuilder(512);
+            headers.append("HOST:").append(MonitorSettings.Client.LocalIpV4).append("\r\n");
+            headers.append("Content-Type:application/json;charset=UTF-8\r\n");
+            headers.append("Connection:close\r\n");
 
             //Response Body
             InvokeStatisticsGroup.TimeGroup group = InvokeStatisticsGroup.dump();
             String body = group.toString();
-            byte[] data = body.getBytes(MonitorSettings.UTF8);
-            os.write(("Content-Length:" + Integer.toString(data.length) + "\r\n").getBytes(MonitorSettings.UTF8));
-            os.write("\r\n".getBytes(MonitorSettings.UTF8));
+            byte[] bodyBytes = body.getBytes(MonitorSettings.UTF8);
+            headers.append("Content-Length:").append(Integer.toString(bodyBytes.length)).append("\r\n\r\n");
 
-            os.write(data);
-            os.flush();
+            byte[] headerBytes = headers.toString().getBytes(MonitorSettings.UTF8);
+
+            this.response(os, responseStatusLineBytes, headerBytes, bodyBytes);
+
         }
 
         /**
@@ -200,8 +208,28 @@ public class BasicHttpServer {
          */
         private void notFoundResource(OutputStream os) throws IOException {
             //ResponseStatusLine
-            os.write("HTTP/1.1 404 NotFound\r\n\r\n".getBytes(MonitorSettings.UTF8));
-            os.write("接口不存在.".getBytes());
+            byte[] responseStatusLineBytes = "HTTP/1.1 404 NotFound\r\n".getBytes(MonitorSettings.UTF8);
+
+            //Response Headers
+            StringBuilder headers = new StringBuilder(512);
+            headers.append("HOST:").append(MonitorSettings.Client.LocalIpV4).append("\r\n");
+            headers.append("Content-Type:text/html;charset=UTF-8\r\n");
+            headers.append("Connection:close\r\n");
+
+            //ResponseBody
+            byte[] bodyBytes = "接口不存在.".getBytes(MonitorSettings.UTF8);
+            headers.append("Content-Length:").append(Integer.toString(bodyBytes.length)).append("\r\n\r\n");
+
+            byte[] headerBytes = headers.toString().getBytes(MonitorSettings.UTF8);
+
+            this.response(os, responseStatusLineBytes, headerBytes, bodyBytes);
+
+        }
+
+        private void response(OutputStream os, byte[] responseStatusLine, byte[] headers, byte[] body) throws IOException {
+            os.write(responseStatusLine);
+            os.write(headers);
+            os.write(body);
             os.flush();
         }
     }

@@ -31,6 +31,7 @@ public class Tester {
             System.out.println(m.getName());
             m.invoke(MieMie.class);
         }
+        System.out.println(1024 << 7);
     }
 
 
