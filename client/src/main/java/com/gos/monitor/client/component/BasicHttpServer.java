@@ -8,6 +8,7 @@ import com.gos.monitor.common.io.SIO;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.concurrent.*;
 
 /**
@@ -19,21 +20,21 @@ public class BasicHttpServer {
 
     private final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(4, 4, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
-    private final ServerSocket server = this.createServerSocket();
+    private final ServerSocket HttpServer = this.createServerSocket();
 
     private BasicHttpServer() {
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 SIO.info(Thread.currentThread().getName() + " 程序退出时,正在关闭BasicHttpServer");
-                if (BasicHttpServer.INSTANCE.server != null) {
+                if (BasicHttpServer.INSTANCE.HttpServer != null) {
                     try {
                         BasicHttpServer.INSTANCE.EXECUTOR.shutdown();
                     } catch (Exception e) {
                         SIO.error("程序退出时,关闭线程池时发生异常.", e);
                     }
                     try {
-                        BasicHttpServer.INSTANCE.server.close();
+                        BasicHttpServer.INSTANCE.HttpServer.close();
                         try (Socket socket = new Socket("127.0.0.1", MonitorSettings.Client.Port)) {
                             OutputStream os = socket.getOutputStream();
                             os.write("GET /look/statistics HTTP/1.1\r\n".getBytes(MonitorSettings.UTF8));
@@ -50,26 +51,25 @@ public class BasicHttpServer {
                 SIO.info(Thread.currentThread().getName() + " 程序退出时,关闭BasicHttpServer完成");
             }
         };
-        Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + server == null ? "" : server.getLocalSocketAddress().toString());
+        Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + HttpServer == null ? "" : HttpServer.getLocalSocketAddress().toString());
         Runtime.getRuntime().addShutdownHook(hook);
     }
 
     public int start() {
-        if (this.server == null) {
+        if (this.HttpServer == null) {
             SIO.error("监控插件启动失败.可能是因为端口号:[" + MonitorSettings.Client.Port + "]被占用.");
             return -1;
         }
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                while (server != null && !server.isClosed()) {
+                while (HttpServer != null && !HttpServer.isClosed()) {
                     try {
-                        Socket socket = server.accept();
-                        socket.setKeepAlive(false);
+                        Socket socket = this.getSocket();
                         Worker worker = new Worker(socket);
                         EXECUTOR.execute(worker);
                     } catch (Exception e) {
-                        if (!server.isClosed()) {
+                        if (!HttpServer.isClosed()) {
                             SIO.error("内置 BasicHttpServer 服务器发生异常.", e);
                         } else {
                             SIO.info("内置 BasicHttpServer 已关闭.");
@@ -77,10 +77,20 @@ public class BasicHttpServer {
                     }
                 }
             }
+
+            private Socket getSocket() throws IOException {
+                Socket so = HttpServer.accept();
+                so.setSendBufferSize(1024 << 5);
+                so.setSoLinger(true, 3);
+                so.setSoTimeout(2000);
+                so.setKeepAlive(false);
+                so.setTcpNoDelay(true);
+                return so;
+            }
         };
-        Thread t = new Thread(r, "BasicHttpServer-" + server.getLocalSocketAddress().toString());
+        Thread t = new Thread(r, "BasicHttpServer-" + HttpServer.getLocalSocketAddress().toString());
         t.start();
-        return this.server.getLocalPort();
+        return this.HttpServer.getLocalPort();
     }
 
     /**
@@ -95,6 +105,21 @@ public class BasicHttpServer {
 
         Worker(Socket socket) {
             this.socket = socket;
+            try {
+                SIO.info("socket default SO_RCVBUF=" + socket.getReceiveBufferSize());
+                SIO.info("socket default SO_SNDBUF=" + socket.getSendBufferSize());
+                SIO.info("socket default SO_LINGER=" + socket.getSoLinger());
+                SIO.info("socket default SO_KEEPALIVE=" + socket.getKeepAlive());
+                SIO.info("socket default SO_TIMEOUT=" + socket.getSoTimeout());
+                SIO.info("socket default TCP_NODELAY=" + socket.getTcpNoDelay());
+                SIO.info("socket default SO_REUSEADDR=" + socket.getReuseAddress());
+                SIO.info("socket default SocketChannel＝" + socket.getChannel());
+                SIO.info("socket IP_TOS=" + socket.getTrafficClass());
+
+                SIO.info("socket OOBINLINE=" + socket.getOOBInline());
+            } catch (Exception e) {
+
+            }
         }
 
         @Override
@@ -210,6 +235,7 @@ public class BasicHttpServer {
         ServerSocket server = null;
         try {
             server = new ServerSocket(port);
+            server.setReceiveBufferSize(1024);
         } catch (Exception e) {
             SIO.error("监听端口:" + port + "时发生了异常,此端口号可能已被占用.", e);
         }
