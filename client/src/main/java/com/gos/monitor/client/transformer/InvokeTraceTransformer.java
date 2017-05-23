@@ -50,10 +50,12 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
     }
 
     @Override
-    public byte[] transform(ClassLoader loader, final String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader loader, final String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] buff) throws IllegalClassFormatException {
         String cn = className.replaceAll("/", ".");
+
         try {
             SIO.info("step 1- 正在检查:" + cn);
+            SIO.info("step 1.1- 类:" + cn + "　的大小:" + (buff == null ? "null" : Integer.toString(buff.length)));
             if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(cn).find()) {
                 SIO.info("因匹配排除表达式故跳过:" + cn);
                 return null;
@@ -79,10 +81,11 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
                     return null;
                 }
             }
+
             final String filePath = className + ".class";
 
             ClassReader reader;
-            byte[] bytes = getBytes(loader, filePath);
+            byte[] bytes = buff != null ? buff : getBytes(loader, filePath);
             if (bytes != null && bytes.length > 0) {
                 reader = new ClassReader(bytes);
             } else {
@@ -94,7 +97,7 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
 
             boolean hasWeaved = TryFinallyTransformService.transform(node);
             if (!hasWeaved) {
-                SIO.info("因此所有方法没有满足修改条件,所以没有修改:" + cn);
+                SIO.info("因所有方法没有满足修改条件,所以没有修改:" + cn);
                 return null;
             }
 
@@ -110,7 +113,6 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
         }
         return null;
     }
-
 
     private static byte[] getBytes(final ClassLoader loader, final String path) {
         if (path == null || path.length() < 1) {

@@ -2,6 +2,7 @@ package com.gos.test;
 
 import com.gos.monitor.annotation.RequireCare;
 import com.gos.monitor.client.entity.RequireCareMapping;
+import com.gos.monitor.common.io.SIO;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -12,7 +13,12 @@ import java.util.concurrent.Executors;
  * Created by xue on 2017-05-11.
  */
 public class Tester {
+    static int x;
 
+    static {
+        x = 100;
+        SIO.info("初始化x,x=" + x);
+    }
 
     private static final Executor executor = Executors.newFixedThreadPool(4);
 

@@ -8,6 +8,7 @@ import com.gos.monitor.common.io.SIO;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.util.UUID;
 
 /**
  * Created by xue on 2016-11-16.
@@ -24,15 +25,22 @@ public class Premain {
 
         SIO.info("premain 开始执行...");
 
-        printAbstract();
+        printAbstract(inst);
 
         SIO.info("插件配置:" + MonitorSettings.getString());
 
         SIO.info("正在启动:" + MonitorSettings.Client.AppName);
 
+        String id = UUID.randomUUID().toString();
+        Class<?>[] loadedClasses = inst.getAllLoadedClasses();
+        SIO.info(id + " loadedClass.length=" + loadedClasses.length);
+        for (Class c : loadedClasses) {
+            SIO.info(id + " loadedClass: " + c.getCanonicalName());
+        }
+
         ClassFileTransformer transformer = new InvokeTraceTransformer();
 
-        inst.addTransformer(transformer, true);
+        inst.addTransformer(transformer, inst.isRetransformClassesSupported());
 
         start();
 
@@ -42,11 +50,16 @@ public class Premain {
     /**
      * 打印参数示例
      */
-    private static void printAbstract() {
+    private static void printAbstract(Instrumentation inst) {
         SIO.info(
-                "使用示例:\n -Dgos.properties.path=${directory}/parameter.properties \n" +
-                "           -javaagent:{directory}/gag-is-client.jar\n\n"
-        );
+                "\n使用示例:\n 添加如下JVM参数:\n " +
+                        "-Dgos.properties.path=${directory}/parameter.properties " +
+                        "-javaagent:{directory}/gag-is-client.jar\n\n");
+        String support = "支持";
+        String unsupport = "不支持";
+        SIO.info("是否支持类重新变型: " + (inst.isRetransformClassesSupported() ? support : unsupport));
+        SIO.info("是否支持类重新定义:" + (inst.isRedefineClassesSupported() ? support : unsupport));
+        SIO.info("是否支持本地方法前辍:" + (inst.isNativeMethodPrefixSupported() ? support : unsupport));
     }
 
     private static final Object Lock = new Object();
