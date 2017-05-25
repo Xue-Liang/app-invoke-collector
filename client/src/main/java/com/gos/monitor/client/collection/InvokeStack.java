@@ -1,5 +1,7 @@
-package com.gos.monitor.client.entity;
+package com.gos.monitor.client.collection;
 
+
+import com.gos.monitor.client.entity.InvokeTimer;
 
 import java.util.LinkedList;
 import java.util.UUID;
@@ -15,7 +17,7 @@ public class InvokeStack {
 
     private String id;
 
-    private LinkedList<InvokeTimer> stack = new LinkedList<>();
+    private ObjectChain<InvokeTimer> stack = new ObjectChain<>();
 
     public InvokeStack() {
         this.id = UUID.randomUUID().toString();

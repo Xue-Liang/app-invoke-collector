@@ -1,6 +1,7 @@
 package com.gos.test;
 
 import com.gos.monitor.annotation.RequireCare;
+import com.gos.monitor.client.collection.ObjectChain;
 import com.gos.monitor.client.entity.RequireCareMapping;
 import com.gos.monitor.common.io.SIO;
 
@@ -16,22 +17,19 @@ import java.util.concurrent.Executors;
 public class Tester {
     static int x;
 
-    static {
-        x = 100;
-        SIO.info("初始化x,x=" + x);
-    }
 
     private static final Executor executor = Executors.newFixedThreadPool(4);
 
     public static void main(String... args) throws InvocationTargetException, IllegalAccessException {
-        Class<?> c = MieMie.class;
-        Method[] ms = c.getDeclaredMethods();
-        System.out.println(ms.length);
-        for (Method m : ms) {
-            System.out.println(m.getName());
-            m.invoke(MieMie.class);
+        ObjectChain<Integer> chain = new ObjectChain<>();
+        for (int i = 0; i < 10; i++) {
+            chain.push(i);
         }
-        System.out.println(1024 << 7);
+
+        for (; chain.hasMore(); ) {
+            System.out.println(chain.pop());
+        }
+
     }
 
 

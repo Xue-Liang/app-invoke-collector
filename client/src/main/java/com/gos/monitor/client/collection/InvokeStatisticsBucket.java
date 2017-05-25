@@ -1,6 +1,8 @@
-package com.gos.monitor.client.entity;
+package com.gos.monitor.client.collection;
 
 
+import com.gos.monitor.client.entity.InvokeStatistics;
+import com.gos.monitor.client.entity.InvokeTimer;
 import com.gos.monitor.common.MonitorSettings;
 
 import java.io.Serializable;
@@ -12,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by xue on 2017-03-27.
  */
-public class InvokeStatisticsGroup implements Serializable {
+public class InvokeStatisticsBucket implements Serializable {
 
     private static TimeGroup group = new TimeGroup();
 

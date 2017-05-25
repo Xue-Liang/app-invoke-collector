@@ -1,8 +1,8 @@
 package com.gos.monitor.client.execute;
 
 import com.gos.monitor.annotation.RequireCare;
-import com.gos.monitor.client.entity.InvokeStack;
-import com.gos.monitor.client.entity.InvokeStatisticsGroup;
+import com.gos.monitor.client.collection.InvokeStack;
+import com.gos.monitor.client.collection.InvokeStatisticsBucket;
 import com.gos.monitor.client.entity.InvokeTimer;
 import com.gos.monitor.client.entity.RequireCareMapping;
 import com.gos.monitor.common.MonitorSettings;
@@ -85,7 +85,7 @@ public class InvokeStackService {
 
         mapping(methodName);
 
-        InvokeStatisticsGroup.statistics(timer);
+        InvokeStatisticsBucket.statistics(timer);
 
     }
 

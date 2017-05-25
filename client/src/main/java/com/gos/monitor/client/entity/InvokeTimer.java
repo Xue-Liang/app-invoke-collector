@@ -10,7 +10,6 @@ import java.io.Serializable;
  */
 public class InvokeTimer implements Serializable {
 
-
     /**
      * 方执行时的当前线程id
      */
