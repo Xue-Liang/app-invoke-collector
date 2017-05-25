@@ -21,7 +21,7 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
     private static volatile boolean ExitConsumer = false;
     private static final String WeavedClassesFileBasePath = MonitorSettings.Client.WeavedClassesFileBase;
 
-    public InvokeTraceTransformer() {
+    static {
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -47,6 +47,10 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             }
         };
         Runtime.getRuntime().addShutdownHook(new Thread(hook, "WeavedClassFiles-Hook"));
+    }
+
+    public InvokeTraceTransformer() {
+
     }
 
     @Override

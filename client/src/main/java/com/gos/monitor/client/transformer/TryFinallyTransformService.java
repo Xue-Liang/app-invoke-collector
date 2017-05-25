@@ -6,8 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.util.List;
-import java.util.ListIterator;
+import java.util.Iterator;
 
 /**
  * 给指定类的每个方法织入代码,用来采集每个方法的执行时间.
@@ -21,7 +20,13 @@ class TryFinallyTransformService {
         if (cn == null) {
             return hasWeaved;
         }
-        for (MethodNode mn : (List<MethodNode>) cn.methods) {
+        for (Object obj : cn.methods) {
+            MethodNode mn;
+            if (obj instanceof MethodNode) {
+                mn = (MethodNode) obj;
+            } else {
+                continue;
+            }
             String methodName = getMethodFullName(cn.name.replace("/", "."), mn.name, mn.desc);
             SIO.info("正在检查方法:" + methodName);
             if ("<init>".equals(mn.name)) {
@@ -57,7 +62,7 @@ class TryFinallyTransformService {
                 continue;
             }
 
-            ListIterator<AbstractInsnNode> iterator = sourceCommands.iterator();
+            Iterator<AbstractInsnNode> iterator = sourceCommands.iterator();
             while (iterator.hasNext()) {
                 AbstractInsnNode instrument = iterator.next();
                 int op = instrument.getOpcode();
@@ -134,7 +139,7 @@ class TryFinallyTransformService {
         //方法开始处插入的指定列表
         InsnList startCommands = new InsnList();
         startCommands.add(new LdcInsnNode(methodName));
-        startCommands.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Exe, "start", "(Ljava/lang/String;)V"));
+        startCommands.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Exe, "start", "(Ljava/lang/String;)V",false));
 
         return startCommands;
     }
@@ -143,7 +148,7 @@ class TryFinallyTransformService {
         //方法结束或方法抛出异常时插入的指定列表
         InsnList finishCommands = new InsnList();
         finishCommands.add(new LdcInsnNode(methodName));
-        finishCommands.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Exe, "finishNoneException", "(Ljava/lang/String;)V"));
+        finishCommands.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Exe, "finishNoneException", "(Ljava/lang/String;)V",false));
         return finishCommands;
     }
 
@@ -151,7 +156,7 @@ class TryFinallyTransformService {
         //方法结束或方法抛出异常时插入的指定列表
         InsnList finishCommands = new InsnList();
         finishCommands.add(new LdcInsnNode(methodName));
-        finishCommands.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Exe, "finishHasException", "(Ljava/lang/String;)V"));
+        finishCommands.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Exe, "finishHasException", "(Ljava/lang/String;)V",false));
         return finishCommands;
     }
 }

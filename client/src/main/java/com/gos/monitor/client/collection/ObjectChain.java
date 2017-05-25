@@ -1,11 +1,13 @@
 package com.gos.monitor.client.collection;
 
+import java.io.Serializable;
+
 /**
  * 一个简单的单向链表
  *
  * @param <T> 链表的结点数据
  */
-public class ObjectChain<T> {
+public class ObjectChain<T> implements Serializable {
 
     private int size = 0;
 
@@ -50,7 +52,8 @@ public class ObjectChain<T> {
      *
      * @param <T> 结点数据类型
      */
-    private class ObjectNode<T> {
+
+    private class ObjectNode<T> implements Serializable {
         /**
          * 数据域
          */

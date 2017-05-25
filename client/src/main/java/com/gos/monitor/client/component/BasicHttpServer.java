@@ -5,6 +5,7 @@ import com.gos.monitor.common.MonitorSettings;
 import com.gos.monitor.common.StringHelper;
 import com.gos.monitor.common.io.SIO;
 
+import javax.management.monitor.MonitorSettingException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,39 +22,41 @@ public class BasicHttpServer {
 
     private final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(4, 4, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
-    private final ServerSocket HttpServer = this.createServerSocket();
+    private static final ServerSocket HttpServer = createServerSocket();
 
-    private BasicHttpServer() {
+    static {
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 SIO.info(Thread.currentThread().getName() + " 程序退出时,正在关闭BasicHttpServer");
                 if (BasicHttpServer.INSTANCE.HttpServer != null) {
-                    try {
-                        BasicHttpServer.INSTANCE.EXECUTOR.shutdown();
-                    } catch (Exception e) {
-                        SIO.error("程序退出时,关闭线程池时发生异常.", e);
-                    }
+
+                    BasicHttpServer.INSTANCE.EXECUTOR.shutdown();
+
                     try {
                         BasicHttpServer.INSTANCE.HttpServer.close();
-                        try (Socket socket = new Socket("127.0.0.1", MonitorSettings.Client.Port)) {
-                            OutputStream os = socket.getOutputStream();
-                            os.write("GET /look/statistics HTTP/1.1\r\n".getBytes(MonitorSettings.UTF8));
-                            os.write("Content-Type:application/json;charset=UTF-8\r\n".getBytes(MonitorSettings.UTF8));
-                            os.write("Content-Length:0\r\n\r\n".getBytes(MonitorSettings.UTF8));
-                            os.flush();
-                        } catch (Exception e) {
-                            SIO.info("程序退出时,已通知BasicHttpServer执行关闭操作.");
-                        }
-                    } catch (Exception e) {
-                        SIO.error("程序退出时,关闭BasicHttpServer时发生异常.", e);
+                    } catch (IOException e) {
+
+                    }
+                    try (Socket socket = new Socket("127.0.0.1", MonitorSettings.Client.Port)) {
+                        OutputStream os = socket.getOutputStream();
+                        os.write("GET /look/statistics HTTP/1.1\r\n".getBytes(MonitorSettings.UTF8));
+                        os.write("Content-Type:application/json;charset=UTF-8\r\n".getBytes(MonitorSettings.UTF8));
+                        os.write("Content-Length:0\r\n\r\n".getBytes(MonitorSettings.UTF8));
+                        os.flush();
+                    } catch (IOException e) {
+                        SIO.info("程序退出时,已通知BasicHttpServer执行关闭操作.");
                     }
                 }
                 SIO.info(Thread.currentThread().getName() + " 程序退出时,关闭BasicHttpServer完成");
             }
         };
-        Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + HttpServer == null ? "" : HttpServer.getLocalSocketAddress().toString());
+        Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + HttpServer.getLocalSocketAddress().toString());
         Runtime.getRuntime().addShutdownHook(hook);
+    }
+
+    private BasicHttpServer() {
+
     }
 
     public int start() {
@@ -115,17 +118,17 @@ public class BasicHttpServer {
             }
             try (final Socket socket = this.socket) {
                 InputStream is = this.socket.getInputStream();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, MonitorSettings.UTF8))) {
                     String line = reader.readLine();
                     if (line != null) {
                         String[] requestLine = StringHelper.split(line, " ", 3);
                         if (requestLine != null && requestLine.length > 1) {
                             String uri = requestLine[1];
-                            if ("/pull/statistics".equals(uri != null ? uri.trim() : uri)) {
+                            if ("/pull/statistics".equals(uri.trim())) {
                                 //Response
                                 OutputStream os = socket.getOutputStream();
                                 pull(os);
-                            } else if ("/look/statistics".equals(uri != null ? uri.trim() : uri)) {
+                            } else if ("/look/statistics".equals(uri.trim())) {
                                 //Response
                                 OutputStream os = socket.getOutputStream();
                                 look(os);
@@ -233,7 +236,7 @@ public class BasicHttpServer {
     }
 
 
-    private ServerSocket createServerSocket() {
+    private static ServerSocket createServerSocket() {
 
         int port = MonitorSettings.Client.Port;
 
