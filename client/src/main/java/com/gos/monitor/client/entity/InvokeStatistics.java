@@ -1,5 +1,7 @@
 package com.gos.monitor.client.entity;
 
+import com.gos.monitor.client.mapping.RequireCareMapping;
+
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -71,29 +73,23 @@ public class InvokeStatistics {
             return "{}";
         }
         long million = nanotime.longValue() / 1_000_000;
-        long errorTotal = exceptions.longValue();
-
-        BigDecimal total = new BigDecimal(invoked);
-        BigDecimal error = new BigDecimal(errorTotal);
-        double errorRate = error.divide(total, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
-        errorRate *= 100;
+        long errors = exceptions.longValue();
 
         //估算出平均每次调用耗时(毫秒)
         long everytime = invoked > 0 ? (million / invoked) : 0;
 
         //估算出平均每秒能执行多少次
-        long everysecond = (invoked / (million < 1 ? 1 : million)) * 1000;
+        long tps = (invoked * 1000) / (million < 1 ? 1 : million);
 
-        StringBuilder cup = new StringBuilder(256);
-        cup.append("{\"method\":\"").append(method).append("\",")
-                .append("\"times\":").append(Long.toString(invoked)).append(",")
-                .append("\"nano_time\":").append(Long.toString(nanotime.longValue())).append(",")
-                .append("\"errors\":").append(Long.toString(errorTotal)).append(",")
-                .append("\"error_rate\":").append(Double.toString(errorRate)).append(",")
-                .append("\"every_time\":").append(Long.toString(everytime < 1 ? 1 : everytime)).append(",")
-                .append("\"every_second\":").append(Long.toString(everysecond)).append(",")
-                .append("\"standers\":")
-                .append(RequireCareMapping.getRequireCareAsString(this.method));
+        StringBuilder cup = new StringBuilder(1024 << 2);
+        cup.append("{");
+        cup.append("\"method\":\"").append(method).append("\",")
+                .append("\"totalTimes\":").append(Long.toString(invoked)).append(",")
+                .append("\"totalNanoTime\":").append(Long.toString(nanotime.longValue())).append(",")
+                .append("\"errors\":").append(Long.toString(errors)).append(",")
+                .append("\"everyTime\":").append(Long.toString(everytime < 1 ? 1 : everytime)).append(",")
+                .append("\"tps\":").append(Long.toString(tps)).append(",")
+                .append("\"standers\":").append(RequireCareMapping.getRequireCareAsString(this.method));
         cup.append("}");
         return cup.toString();
     }

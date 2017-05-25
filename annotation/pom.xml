@@ -6,7 +6,7 @@
 
     <groupId>com.gos</groupId>
     <artifactId>gos-is-annotation</artifactId>
-    <version>1.0</version>
+    <version>1.3</version>
 
     <distributionManagement>
         <repository>
@@ -23,6 +23,17 @@
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+                <version>3.6.1</version>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

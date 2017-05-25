@@ -159,8 +159,8 @@ public class BasicHttpServer {
             headers.append("Connection:close\r\n");
 
             //Response Body
-            InvokeStatisticsBucket.TimeGroup group = InvokeStatisticsBucket.dump();
-            String body = group.toString();
+            String body = InvokeStatisticsBucket.view();
+
             byte[] bodyBytes = body.getBytes(MonitorSettings.UTF8);
             headers.append("Content-Length:").append(Integer.toString(bodyBytes.length)).append("\r\n\r\n");
 

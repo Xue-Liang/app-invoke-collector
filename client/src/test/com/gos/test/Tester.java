@@ -2,12 +2,9 @@ package com.gos.test;
 
 import com.gos.monitor.annotation.RequireCare;
 import com.gos.monitor.client.collection.ObjectChain;
-import com.gos.monitor.client.entity.RequireCareMapping;
-import com.gos.monitor.common.io.SIO;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -15,12 +12,18 @@ import java.util.concurrent.Executors;
  * Created by xue on 2017-05-11.
  */
 public class Tester {
-    static int x;
-
 
     private static final Executor executor = Executors.newFixedThreadPool(4);
 
     public static void main(String... args) throws InvocationTargetException, IllegalAccessException {
+        for (int i = 0; i < 100000; i++) {
+            MieMie.sub();
+            MieMie.post();
+        }
+    }
+
+
+    static void testObjectChain() {
         ObjectChain<Integer> chain = new ObjectChain<>();
         for (int i = 0; i < 10; i++) {
             chain.push(i);
@@ -29,9 +32,7 @@ public class Tester {
         for (; chain.hasMore(); ) {
             System.out.println(chain.pop());
         }
-
     }
-
 
     static void write(final String path, final String name, final byte[] data) {
         Runnable r = new Runnable() {
@@ -59,6 +60,7 @@ public class Tester {
         static void sub() {
             String m = "com.gooagoo.Tester.MieMie.sub(Method)";
             System.out.println(m);
+
         }
     }
 }

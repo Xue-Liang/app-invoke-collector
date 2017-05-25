@@ -149,8 +149,6 @@ public class MonitorSettings {
 
         public static final String LocalIpV6 = getIpByVersion(6);
 
-        public static final String CenterServer = getCenterServer();
-
         public static final String RegistryServer = getRegistry();
 
         public static final Pattern IncludePackages = getIncludePackage();
@@ -249,9 +247,9 @@ public class MonitorSettings {
             SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载ExcludePackage...");
             //不需要监控的包
             String exclude = (String) SystemProperties.get("gos.monitor.exclude.packages");
-            String defaultExcludePackages = "(com.gooagoo.monitor)|(com.gooagoo.container)|(com.gooagoo.*.entity)|(com.gooagoo.*.vo)|(com.gooagoo.*.log)";
+            String defaultExcludePackages = "(com.*.monitor)|(com.*.container)|(com.*.entity)|(com.*.vo)|(com.*.domain)|(.*.log)";
             Pattern pattern;
-            if (exclude == null) {
+            if (exclude == null || (exclude.length() < 1)) {
                 pattern = Pattern.compile(defaultExcludePackages, Pattern.CASE_INSENSITIVE);
             } else {
                 try {
@@ -270,8 +268,8 @@ public class MonitorSettings {
             //需要监控的包
             Pattern pattern;
             String include = (String) SystemProperties.get("gos.monitor.include.packages");
-            String defaultIncludePackages = "(com.gooagoo.*.controller)|(com.gooagoo.*.service)|(com.gooagoo.*.dao)";
-            if (include == null) {
+            String defaultIncludePackages = "(com.*.controller)|(com.*.action)|(com.*.service)|(com.*.dao)";
+            if (include == null || include.length() < 1) {
                 pattern = Pattern.compile(defaultIncludePackages, Pattern.CASE_INSENSITIVE);
             } else {
                 try {
@@ -290,22 +288,22 @@ public class MonitorSettings {
             // 获取本地IP地址
             String ip = null;
             try {
-                Enumeration<NetworkInterface> nets = null;
+                Enumeration<NetworkInterface> nets;
                 nets = NetworkInterface.getNetworkInterfaces();
                 while (nets.hasMoreElements() && (Client.LocalIpV4 == null || Client.LocalIpV6 == null)) {
                     NetworkInterface net = nets.nextElement();
-                    Enumeration<InetAddress> addrs = net.getInetAddresses();
-                    while (addrs.hasMoreElements()) {
-                        InetAddress addr = addrs.nextElement();
-                        if (!addr.isLoopbackAddress()) {
-                            if (addr instanceof Inet4Address) {
+                    Enumeration<InetAddress> addresses = net.getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        InetAddress address = addresses.nextElement();
+                        if (!address.isLoopbackAddress()) {
+                            if (address instanceof Inet4Address) {
                                 if (version == 4) {
-                                    ip = addr.getHostAddress();
+                                    ip = address.getHostAddress();
                                     break;
                                 }
-                            } else if (addr instanceof Inet6Address) {
+                            } else if (address instanceof Inet6Address) {
                                 if (version == 6) {
-                                    ip = addr.getHostAddress();
+                                    ip = address.getHostAddress();
                                     break;
                                 }
                             }
@@ -322,32 +320,16 @@ public class MonitorSettings {
         private static String getRegistry() {
             SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载registry...");
             // 中央服务器注册接口地址
-            String cs = (String) SystemProperties.get("gos.monitor.registry");
+            String cs = (String) SystemProperties.get("gos.monitor.server.registry");
             if (cs != null) {
                 try {
                     URI uri = URI.create(cs);
                     cs = uri.toString();
                 } catch (Exception e) {
-                    SIO.info("监控中心-URL配置错误,gos.monitor.registry＝" + cs + " 不是一个合法的URL");
+                    SIO.info("监控中心-URL配置错误,gos.monitor.server.registry＝" + cs + " 不是一个合法的URL");
                 }
             }
             SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载registry完成");
-            return cs == null ? "" : cs;
-        }
-
-        private static String getCenterServer() {
-            // 统计结果中央处理服务器 http://gos.goo.com/receive.do
-            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载CenterServer...");
-            String cs = (String) SystemProperties.get("gos.monitor.server.receive");
-            if (cs != null) {
-                try {
-                    URI uri = URI.create(cs);
-                    cs = uri.toString();
-                } catch (Exception e) {
-                    SIO.info("监控中心-URL配置错误,gos.monitor.server＝" + cs + " 不是一个合法的URL");
-                }
-            }
-            SIO.info(MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "-加载CenterServer完成");
             return cs == null ? "" : cs;
         }
 

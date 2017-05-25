@@ -26,7 +26,7 @@ public @interface RequireCare {
 
     /**
      * 接口的重要程度.
-     *
+     * @see Level
      * @return
      */
     Level level() default Level.Normal;
@@ -49,10 +49,17 @@ public @interface RequireCare {
 
 
     /**
-     * 　在一段时间内最多允许出现的错误数.
-     * 　超过此值,发出警报.
-     *  如果此值小于等于零则不报警.
+     * 　在一段时间内最多允许出现的错误数.超过此值,发出警报.
+     * 　如果此值小于等于零则不报警.
      */
     int maxError() default 0;
+
+    /**
+     * 允许的最低tps值,低于此值则报警.
+     * 如果此值小于等于零则不报警.
+     *
+     * @return
+     */
+    int minTPS() default 1;
 
 }

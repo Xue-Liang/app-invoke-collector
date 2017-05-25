@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.UUID;
 
 /**
- * 一个线程中方法调用栈,方法开始执行时，压栈，方法结束返回时出栈
+ * 一个线程中方法调用栈,方法开始执行时压栈，方法结束返回时出栈
  *
  * @author Xue Liang on 2017-03-01
  */

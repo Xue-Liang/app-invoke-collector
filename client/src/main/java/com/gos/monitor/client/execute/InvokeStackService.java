@@ -4,9 +4,10 @@ import com.gos.monitor.annotation.RequireCare;
 import com.gos.monitor.client.collection.InvokeStack;
 import com.gos.monitor.client.collection.InvokeStatisticsBucket;
 import com.gos.monitor.client.entity.InvokeTimer;
-import com.gos.monitor.client.entity.RequireCareMapping;
+import com.gos.monitor.client.mapping.RequireCareMapping;
 import com.gos.monitor.common.MonitorSettings;
 import com.gos.monitor.common.io.SIO;
+import sun.misc.Request;
 
 import java.lang.reflect.Method;
 
@@ -105,20 +106,26 @@ public class InvokeStackService {
      * @param mn 方法全名
      */
     private static void mapping(String mn) {
-        //如果已经发生了映射，跳过不做覆盖.
+        //如果已经发生了映射，跳过.
         if (RequireCareMapping.hasKey(mn)) {
             return;
         }
+        //如果此类已经通过反射进行了方法映射则跳过,不做反射处理.
+        String clazz = getClassName(mn);
+        if (RequireCareMapping.hasClass(clazz)) {
+            return;
+        }
 
-        int ix = mn.lastIndexOf('.');
-        String clazz = mn.substring(0, ix);
+        RequireCareMapping.setClass(clazz);
+
         try {
             Class<?> cs = Class.forName(clazz);
             Method[] ms = cs.getDeclaredMethods();
             for (Method m : ms) {
                 RequireCare annotation = m.getAnnotation(RequireCare.class);
-                if (annotation != null) {
-                    RequireCareMapping.put(getFullName(m), annotation);
+                String methodFullName = getFullName(m);
+                if (!RequireCareMapping.hasKey(methodFullName)) {
+                    RequireCareMapping.put(methodFullName, annotation);
                 }
             }
         } catch (Exception e) {
@@ -143,4 +150,11 @@ public class InvokeStackService {
         return fullName.toString();
     }
 
+    private static String getClassName(String methodFullName) {
+        if (methodFullName == null) {
+            return null;
+        }
+        int ix = methodFullName.lastIndexOf('.');
+        return ix < 1 ? null : methodFullName.substring(0, ix);
+    }
 }
