@@ -1,11 +1,12 @@
-[{
-	"id":1,
-	"text":"购物系统",
-	"children":[{
-		"id":11,
-		"text":"购物车接口"
-	},{
-		"id":12,
-		"text":"支付接口"
-	}]
-}]
+[
+  {
+    "id": "settings",
+    "text": "系统配置",
+    "children": [
+      {
+        "id": "settings_app",
+        "text": "<a onclick='addPanel(this)' url='/app.html'>应用程序管理</a>"
+      }
+    ]
+  }
+]

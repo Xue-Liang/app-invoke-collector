@@ -2,17 +2,50 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Full Layout - jQuery EasyUI Demo</title>
-    <link rel="stylesheet" type="text/css" href="./easy-ui/themes/default/easyui.css">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="./easy-ui/themes/metro/easyui.css">
+    <script type="text/javascript">
+       var iframeHeight= parseInt(window.screen.height*0.75);
+		var index = 0;
+		function addPanel(obj){
+			index++;
+			var content = [];
+			content.push('<iframe src="');
+			content.push(obj.getAttribute("url"));
+			content.push('"');
+			content.push(' style="width:80%;height:');
+			content.push(iframeHeight);
+			content.push('px;"');
+		    content.push(' frameborder="0" scrolling="no" allowtransparency="yes" onload="autoHeightFrame()"></iframe>');
+			$('#tabs').tabs('add',{
+				title: obj.innerText,
+				content: content.join('') ,
+				closable: true
+			});
+		}
+		function removePanel(){
+			var tab = $('#tabs').tabs('getSelected');
+			if (tab){
+				var index = $('#tabs').tabs('getTabIndex', tab);
+				$('#tabs').tabs('close', index);
+			}
+		}
+    </script>
     <link rel="stylesheet" type="text/css" href="./easy-ui/themes/icon.css">
     <script type="text/javascript" src="./easy-ui/jquery.min.js"></script>
     <script type="text/javascript" src="./easy-ui/jquery.easyui.min.js"></script>
 </head>
 <body class="easyui-layout">
-<div data-options="region:'north',border:false" style="height:60px;background:#B3DFDA;padding:10px">JAVA应用程序监控后台</div>
-<div data-options="region:'west',split:true,title:'功能菜单'" style="width:200px;padding:10px;">
-    <ul class="easyui-tree" data-options="url:'menu-struct.json',method:'get',animate:true"></ul>
+<div data-options="region:'north',border:false" style="height:60px;background:#B3DFDA;padding:10px">
+
 </div>
-<div data-options="region:'center',title:''"></div>
+<div data-options="region:'west',split:true,title:'功能菜单'" style="width:15%;padding:10px;">
+    <ul class="easyui-tree" data-options="url:'./menu-struct.json',method:'get',animate:true"></ul>
+</div>
+<div data-options="region:'center',title:''">
+    <div id="tabs" class="easyui-tabs" data-options="tools:'#tab-tools'" style="width:auto;height:auto;">
+
+    </div>
+</div>
 </body>
 </html>

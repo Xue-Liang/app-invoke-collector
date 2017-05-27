@@ -8,7 +8,7 @@ import java.util.Date;
 /**
 
 
-@author Robot.Xue on 2017-05-22 18:14:18
+@author Robot.Xue on 2017-05-25 17:41:41
 */
 public class App implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -21,11 +21,15 @@ public class App implements Serializable {
     */
     protected String  name;
     /**
+    0:未审核 1:已审核
+    */
+    protected Integer  status;
+    /**
     创建时间
     */
     protected Date  createTime;
     /**
-    
+    -1: 审核未通过 0:未审核 1:已通过审核 
     */
     protected Date  updateTime;
 
@@ -40,6 +44,12 @@ public class App implements Serializable {
     }
     public String getName (){
         return this.name;
+    }
+    public void setStatus(Integer status){
+        this.status = status;
+    }
+    public Integer getStatus (){
+        return this.status;
     }
     public void setCreateTime(Date createTime){
         this.createTime = createTime;

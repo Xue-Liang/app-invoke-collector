@@ -20,21 +20,21 @@ import com.gos.monitor.server.manager.dao.SqlBuilder.MySqlBuilder;
 /**
 基本的增、删、改查工具类,数据表结构发生变化时,直接用代码生成工具成成代码文件，替换此类。
 一些业务方面的查询、更新功能可以在子类中修改扩展实现。
-@author Xue Liang  on 2017-05-22 18:14:18
+@author Xue Liang  on 2017-05-25 17:41:41
 */
 
 public abstract class AbstractCounterDao{
     @Resource
-    private JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
 
-    private static final RowMapper<Counter> mapper = new BeanPropertyRowMapper<Counter>(Counter.class);
+    protected static final RowMapper<Counter> mapper = new BeanPropertyRowMapper<Counter>(Counter.class);
 
-    private static final ResultSetExtractor<Counter > extractor = new ResultSetExtractor<Counter>() {
+    protected static final ResultSetExtractor<Counter > extractor = new ResultSetExtractor<Counter>() {
         @Override
         public Counter extractData(ResultSet rs) throws SQLException, DataAccessException {
             Counter row = new Counter();
-                        row.setId(rs.getInteger("id"));
-                        row.setHostId(rs.getInteger("host_id"));
+                        row.setId(rs.getInt("id"));
+                        row.setHostId(rs.getInt("host_id"));
                         row.setCounter(rs.getString("counter"));
                         row.setCreateTime(rs.getDate("create_time"));
                         row.setUpdateTime(rs.getDate("update_time"));
@@ -45,7 +45,7 @@ public abstract class AbstractCounterDao{
     private static final String insert = "insert into counter (host_id,counter,create_time,update_time)values(?,?,?,?)";
    /**
     插入一条数据
-   @author Xue Liang  on 2017-05-22 18:14:18
+   @author Xue Liang  on 2017-05-25 17:41:41
    */
     public void insert(Counter  entity){
         final Object[] values = new Object[] {
@@ -77,7 +77,7 @@ public abstract class AbstractCounterDao{
     }
     /**
     修改一条数据
-    @author Xue Liang  on 2017-05-22 18:14:18
+    @author Xue Liang  on 2017-05-25 17:41:41
     */
     public int update(Counter entity){
         SqlBuilder sql = MySqlBuilder.create().update("counter");
@@ -104,9 +104,9 @@ public abstract class AbstractCounterDao{
     }
 
     private static final String delete="delete from counter where  id=? ";
-    /*
-    删除一条数据
-    @author Xue Liang  on 2017-05-22 18:14:18
+    /**
+    根据主键删除一条数据
+    @author Xue Liang  on 2017-05-25 17:41:41
     */
     public int delete(  Integer id){
         return this.jdbcTemplate.update(delete,  id);
@@ -115,7 +115,7 @@ public abstract class AbstractCounterDao{
         private static final String queryFirst ="select id,host_id,counter,create_time,update_time from counter  where  id=? ";
     /**
     根据主键查询一条数据
-    @author Xue Liang  on 2017-05-22 18:14:18
+    @author Xue Liang  on 2017-05-25 17:41:41
     */
     public Counter queryFirst(  Integer id){
         Object[]values = new Object[] {
@@ -129,7 +129,7 @@ public abstract class AbstractCounterDao{
     }
     /**
     自定义的查询,根据sql查询满足条件的记录列表
-    @author Xue Liang  on 2017-05-22 18:14:18
+    @author Xue Liang  on 2017-05-25 17:41:41
     */
    public List<Counter> query(SqlBuilder sqlBuilder){
         List<Counter> entities = this.jdbcTemplate.query(sqlBuilder.toSql(),sqlBuilder.getParameters().toArray(),mapper);
@@ -137,7 +137,7 @@ public abstract class AbstractCounterDao{
    }
    /**
        自定义的查询,根据sql查询满足条件的记录总数
-       @author Xue Liang  on 2017-05-22 18:14:18
+       @author Xue Liang  on 2017-05-25 17:41:41
    */
    public int queryTotal(SqlBuilder sqlBuilder){
            return this.jdbcTemplate.queryForObject(sqlBuilder.toSql(),sqlBuilder.getParameters().toArray(),Integer.class);

@@ -5,17 +5,17 @@ import com.gos.monitor.server.manager.entity.Counter;
 /**
 
 
-@author Robot.Xue on 2017-05-22 18:14:18
+@author Robot.Xue on 2017-05-25 17:41:41
 */
 public interface CounterService{
 
-    public void insert(Counter  entity);
+    public void insert(Counter entity);
 
     public int update(Counter entity);
 
-    public int delete(  Integer id);
+    public int delete(Integer id);
 
-    public Counter getCounter(  Integer id);
+    public Counter getCounter(Integer id);
 
     public List<Counter> query(SqlBuilder builder);
 }

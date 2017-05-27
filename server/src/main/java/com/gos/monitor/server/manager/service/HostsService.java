@@ -5,17 +5,17 @@ import com.gos.monitor.server.manager.entity.Hosts;
 /**
 
 
-@author Robot.Xue on 2017-05-22 18:14:18
+@author Robot.Xue on 2017-05-25 17:41:41
 */
 public interface HostsService{
 
-    public void insert(Hosts  entity);
+    public void insert(Hosts entity);
 
     public int update(Hosts entity);
 
-    public int delete(  Integer id);
+    public int delete(Integer id);
 
-    public Hosts getHosts(  Integer id);
+    public Hosts getHosts(Integer id);
 
     public List<Hosts> query(SqlBuilder builder);
 }

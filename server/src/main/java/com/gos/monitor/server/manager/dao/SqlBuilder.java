@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.LinkedList;
+
 /**
-
-
-@author Robot.Xue on 2017-05-22 18:14:18
-*/
+ * @author Robot.Xue on 2017-05-25 17:41:41
+ */
 
 public interface SqlBuilder {
     /**
@@ -24,7 +23,7 @@ public interface SqlBuilder {
 
     public SqlBuilder update(String table);
 
-    public SqlBuilder set(String field,Object value);
+    public SqlBuilder set(String field, Object value);
 
     public SqlBuilder from(String table);
 
@@ -51,8 +50,10 @@ public interface SqlBuilder {
     public SqlBuilder in(Collection<Object> vs);
 
     public SqlBuilder in(SqlBuilder sqlBuilder);
+
     /**
      * not in creiteria
+     *
      * @param values
      * @return
      */
@@ -60,6 +61,7 @@ public interface SqlBuilder {
 
     /**
      * order by <field> asc
+     *
      * @param field
      * @return
      */
@@ -67,6 +69,7 @@ public interface SqlBuilder {
 
     /**
      * order by <field> desc
+     *
      * @param field
      * @return
      */
@@ -117,34 +120,33 @@ public interface SqlBuilder {
 
         @Override
         public SqlBuilder insert(String table, String[] fs, Object[] vs) {
-            if(fs==null||fs.length<1){
+            if (fs == null || fs.length < 1) {
                 throw new IllegalArgumentException("fields name is null or empty,please set field names!");
-            }else if(vs==null||vs.length<1){
+            } else if (vs == null || vs.length < 1) {
                 throw new IllegalArgumentException("values is null or empty,please set values");
-            }else if(fs.length!=vs.length){
+            } else if (fs.length != vs.length) {
                 throw new IllegalArgumentException("fields length must equals the values length");
             }
             this.put(insert).put(table).put(lb);
-            if (fs != null) {
-                int i = 0;
-                for (; i < fs.length - 1; i++) {
-                    this.put(fs[i]).put(comma);
-                }
-                if (i == fs.length - 1) {
-                    this.put(fs[i]);
-                }
-                this.put(rb).put("values").put(lb);
-                i = 0;
-                for (; i < fs.length - 1; i++) {
-                    this.put(qm).put(comma);
-                    this.values.add(vs[i]);
-                }
-                if (i == fs.length - 1) {
-                    this.put(qm);
-                    this.values.add(vs[i]);
-                }
-                this.put(rb);
+
+            int i = 0;
+            for (; i < fs.length - 1; i++) {
+                this.put(fs[i]).put(comma);
             }
+            if (i == fs.length - 1) {
+                this.put(fs[i]);
+            }
+            this.put(rb).put("values").put(lb);
+            i = 0;
+            for (; i < fs.length - 1; i++) {
+                this.put(qm).put(comma);
+                this.values.add(vs[i]);
+            }
+            if (i == fs.length - 1) {
+                this.put(qm);
+                this.values.add(vs[i]);
+            }
+            this.put(rb);
             return this;
         }
 
@@ -160,22 +162,23 @@ public interface SqlBuilder {
 
         @Override
         public SqlBuilder update(String table) {
-            if(table==null || (table=table.trim()).length()<1){
+            if (table == null || (table = table.trim()).length() < 1) {
                 throw new IllegalArgumentException("table name can not be null or empty,please set the table name!");
             }
             return this.put(update).put(table);
         }
 
-        private static final String set ="set";
+        private static final String set = "set";
+
         @Override
         public SqlBuilder set(String field, Object value) {
-            if(field==null || (field=field.trim()).length()<1){
+            if (field == null || (field = field.trim()).length() < 1) {
                 throw new IllegalArgumentException(" field can not be null or empty.");
             }
-            if(values.size()<1){
-               this.put(set);
-            }else{
-               this.put(comma);
+            if (values.size() < 1) {
+                this.put(set);
+            } else {
+                this.put(comma);
             }
             return this.put(field).eq(value);
         }
@@ -192,7 +195,7 @@ public interface SqlBuilder {
         @Override
         public SqlBuilder where(String exp) {
             this.put(where);
-            if(exp!=null){
+            if (exp != null) {
                 this.put(exp);
             }
             return this;
@@ -228,6 +231,7 @@ public interface SqlBuilder {
         }
 
         private static final String or = "or";
+
         @Override
         public SqlBuilder or(String field) {
             return this.put(or).put(field);
@@ -265,7 +269,7 @@ public interface SqlBuilder {
 
         private static final String lt = "<?";
 
-       @Override
+        @Override
         public SqlBuilder lt(Object value) {
             if (values == null) {
                 values = new ArrayList<Object>();
@@ -309,6 +313,7 @@ public interface SqlBuilder {
             }
             return this.put(rb);
         }
+
         @Override
         public SqlBuilder in(SqlBuilder builder) {
             return this.put(in).put(lb).put(builder.toSql()).put(rb);
@@ -317,7 +322,7 @@ public interface SqlBuilder {
         private static final String nin = "not in";
 
         @Override
-        public SqlBuilder nin(Collection<Object> vs){
+        public SqlBuilder nin(Collection<Object> vs) {
             if (vs == null) {
                 return this;
             }
@@ -399,17 +404,17 @@ public interface SqlBuilder {
         }
 
         @Override
-        public String toString(){
+        public String toString() {
             return this.toSql();
         }
 
         @Override
-        public void clear(){
-          this.buff.clear();
-          this.values.clear();
-          this.skip = 0;
-          this.limit = 0;
-          this.capacity = 0;
+        public void clear() {
+            this.buff.clear();
+            this.values.clear();
+            this.skip = 0;
+            this.limit = 0;
+            this.capacity = 0;
         }
     }
 }

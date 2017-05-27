@@ -8,7 +8,7 @@ import java.util.Date;
 /**
 
 
-@author Robot.Xue on 2017-05-22 18:14:18
+@author Robot.Xue on 2017-05-25 17:41:41
 */
 public class Graph implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -25,9 +25,9 @@ public class Graph implements Serializable {
     */
     protected Long  value;
     /**
-    
+    间隔时间 单位:秒
     */
-    protected Date  since;
+    protected Integer  interval;
     /**
     
     */
@@ -55,11 +55,11 @@ public class Graph implements Serializable {
     public Long getValue (){
         return this.value;
     }
-    public void setSince(Date since){
-        this.since = since;
+    public void setInterval(Integer interval){
+        this.interval = interval;
     }
-    public Date getSince (){
-        return this.since;
+    public Integer getInterval (){
+        return this.interval;
     }
     public void setCreateTime(Date createTime){
         this.createTime = createTime;

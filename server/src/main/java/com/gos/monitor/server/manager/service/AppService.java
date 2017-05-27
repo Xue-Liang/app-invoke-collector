@@ -5,17 +5,17 @@ import com.gos.monitor.server.manager.entity.App;
 /**
 
 
-@author Robot.Xue on 2017-05-22 18:14:18
+@author Robot.Xue on 2017-05-25 17:41:41
 */
 public interface AppService{
 
-    public void insert(App  entity);
+    public void insert(App entity);
 
     public int update(App entity);
 
-    public int delete(  Integer id);
+    public int delete(Integer id);
 
-    public App getApp(  Integer id);
+    public App getApp(Integer id);
 
     public List<App> query(SqlBuilder builder);
 }
