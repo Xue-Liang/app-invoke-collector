@@ -76,7 +76,7 @@ public class InvokeStatistics {
         long errors = exceptions.longValue();
 
         //估算出平均每次调用耗时(毫秒)
-        long everytime = invoked > 0 ? (million / invoked) : 0;
+        long everytime = million / invoked;
 
         //估算出平均每秒能执行多少次
         long tps = (invoked * 1000) / (million < 1 ? 1 : million);

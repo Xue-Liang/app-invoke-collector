@@ -157,7 +157,9 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
             String directory = WeavedClassesFileBasePath + folder;
             File dir = new File(directory);
             if (!dir.exists()) {
-                dir.mkdirs();
+                if (!dir.mkdirs()) {
+                    return;
+                }
             }
             String finalFilePath = directory + name + ".class";
             SIO.info("修改过的字节码已被保存在:" + finalFilePath);

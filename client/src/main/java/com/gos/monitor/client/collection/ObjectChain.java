@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @param <T> 链表的结点数据
  */
-public class ObjectChain<T> implements Serializable {
+public class ObjectChain<T> {
 
     private int size = 0;
 
@@ -53,7 +53,7 @@ public class ObjectChain<T> implements Serializable {
      * @param <T> 结点数据类型
      */
 
-    private class ObjectNode<T> implements Serializable {
+    private class ObjectNode<T> {
         /**
          * 数据域
          */
