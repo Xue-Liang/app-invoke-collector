@@ -24,17 +24,12 @@ public class InvokeStack {
     }
 
     public void push(InvokeTimer timer) {
-        timer.setStep(this.step);
+        timer.setStep(this.step++);
         this.stack.push(timer);
-        this.step++;
     }
 
     public InvokeTimer pop() {
-        InvokeTimer timer = null;
-        if (stack.size() > 0) {
-            timer = stack.pop();
-        }
-        return timer;
+        return stack.pop();
     }
 
     public String getId() {

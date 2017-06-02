@@ -42,9 +42,9 @@ public class InvokeStatisticsBucket implements Serializable {
 
         private long startTime = System.currentTimeMillis();
 
-        private static final int Capacity = 4096;
+        private static final int Capacity = 128;
 
-        Map<String, InvokeStatistics> body = new ConcurrentHashMap<>(Capacity);
+        ConcurrentHashMap<String, InvokeStatistics> body = new ConcurrentHashMap<>(Capacity);
 
 
         public Map<String, InvokeStatistics> get() {
@@ -77,9 +77,8 @@ public class InvokeStatisticsBucket implements Serializable {
 
         @Override
         public String toString() {
-            Set<Map.Entry<String, InvokeStatistics>> set = this.body.entrySet();
 
-            final int size = set.size();
+            final int size = this.body.size();
             StringBuilder cup = new StringBuilder((128 + size - 1) + size * 156);
 
             cup.append("{").append("\"since\":").append(Long.toString(startTime)).append(",")
@@ -87,8 +86,7 @@ public class InvokeStatisticsBucket implements Serializable {
                     .append("\"owner\":\"").append(MonitorSettings.Client.AppOwner).append("\",")
                     .append("\"contact\":\"").append(MonitorSettings.Client.AppOwnerContact).append("\",")
                     .append("\"methods\":[");
-            Iterator<Map.Entry<String, InvokeStatistics>> it = set.iterator();
-
+            Iterator<Map.Entry<String, InvokeStatistics>> it = this.body.entrySet().iterator();
             for (int i = 0, len = size - 1; i < len && it.hasNext(); i++) {
                 Map.Entry<String, InvokeStatistics> kv = it.next();
                 InvokeStatistics is = kv.getValue();

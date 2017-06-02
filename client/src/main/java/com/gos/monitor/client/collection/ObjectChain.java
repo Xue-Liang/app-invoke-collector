@@ -29,7 +29,7 @@ public class ObjectChain<T> {
             return null;
         }
         ObjectNode<T> on = this.first;
-        this.first = this.first.next;
+        this.first = on.next;
         this.size--;
         return on.data;
     }
