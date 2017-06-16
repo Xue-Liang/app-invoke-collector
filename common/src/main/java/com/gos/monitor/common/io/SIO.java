@@ -55,7 +55,7 @@ public class SIO {
     }
 
     private static void output(String message, Throwable t, String level) {
-        if (MonitorSettings.Client.Logging) {
+        if (MonitorSettings.Client.Logging()) {
             long tid = Thread.currentThread().getId();
             String line = MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + " 监控插件-" + (level == null ? "" : level) + " tid: [" + Long.toString(tid) + ",0x" + Long.toString(tid, 16) + "] " + message;
             LogBuffer.INSTANCE.write(line, t);
@@ -66,15 +66,15 @@ public class SIO {
         private static final int MaxBuckets = 32;
         private static final int BucketSize = 1024 << 11;
         private static final ByteBuffer[] Buckets = new ByteBuffer[MaxBuckets];
-        private static final String LogFileDirectory = MonitorSettings.Client.TempDirectory + File.separator + "client" + File.separator + "log" + File.separator;
-        private static final String LogFileName = MonitorSettings.Client.AppName + "-" + MonitorSettings.Client.Port + ".log";
+        private static final String LogFileDirectory = MonitorSettings.Client.TempDirectory() + File.separator + "client" + File.separator + "log" + File.separator;
+        private static final String LogFileName = MonitorSettings.Client.AppName() + "-" + MonitorSettings.Client.Port() + ".log";
         private static FileOutputStream FOS = getFileOutputStream();
         private static final Object BufferLock = new Object();
         private static volatile boolean ExitFlusher = false;
         private static volatile long WriteFileTime = 0;
 
         static {
-            if (MonitorSettings.Client.Logging) {
+            if (MonitorSettings.Client.Logging()) {
                 for (int i = 0; i < MaxBuckets; i++) {
                     Buckets[i] = ByteBuffer.allocateDirect(BucketSize);
                 }
@@ -125,7 +125,7 @@ public class SIO {
             }
             if (t != null) {
                 try (ByteArrayOutputStream bos = new ByteArrayOutputStream(1024)) {
-                    try (PrintStream stream = new PrintStream(bos)) {
+                    try (PrintStream stream = new PrintStream(bos, true, MonitorSettings.UTF8.name())) {
                         t.printStackTrace(stream);
                         write(bos.toByteArray());
                     }
@@ -196,7 +196,9 @@ public class SIO {
         private static FileOutputStream getFileOutputStream() {
             File directory = new File(LogFileDirectory);
             if (!directory.exists()) {
-                directory.mkdirs();
+                if (!directory.mkdirs()) {
+                    return null;
+                }
             }
 
             FileOutputStream fos = null;
@@ -218,7 +220,9 @@ public class SIO {
             String path = LogFileDirectory + MonitorSettings.getDataTime(Calendar.DAY_OF_MONTH, File.separator);
             File directory = new File(path);
             if (!directory.exists()) {
-                directory.mkdirs();
+                if (!directory.mkdirs()) {
+                    return null;
+                }
             }
             return new File(path + File.separator + LogFileName + "_" + MonitorSettings.getDataTime(Calendar.MILLISECOND, "-") + "_" + UUID.randomUUID());
         }

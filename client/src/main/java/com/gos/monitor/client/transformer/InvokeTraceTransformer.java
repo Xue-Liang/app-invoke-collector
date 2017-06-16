@@ -60,10 +60,10 @@ public class InvokeTraceTransformer implements ClassFileTransformer {
         try {
             SIO.info("step 1- 正在检查:" + cn);
             SIO.info("step 1.1- 类:" + cn + "　的大小:" + (buff == null ? "null" : Integer.toString(buff.length)));
-            if (MonitorSettings.Client.ExcludePackages != null && MonitorSettings.Client.ExcludePackages.matcher(cn).find()) {
+            if (MonitorSettings.Client.ExcludePackages() != null && MonitorSettings.Client.ExcludePackages().matcher(cn).find()) {
                 SIO.info("因匹配排除表达式故跳过:" + cn);
                 return null;
-            } else if (MonitorSettings.Client.IncludePackages != null && !MonitorSettings.Client.IncludePackages.matcher(cn).find()) {
+            } else if (MonitorSettings.Client.IncludePackages() != null && !MonitorSettings.Client.IncludePackages().matcher(cn).find()) {
                 SIO.info("因不匹配采集表达式故跳过:" + cn);
                 return null;
             }

@@ -19,7 +19,7 @@ public class HttpClient {
             byte[] requestHeaders = req.getHttpHeader().toString().getBytes(MonitorSettings.UTF8);
             os.write(requestHeaders);
 
-            os.write("\r\n".getBytes());
+            os.write("\r\n".getBytes(MonitorSettings.UTF8));
 
             byte[] body = req.getRequestBody();
             if (body != null) {
@@ -31,7 +31,7 @@ public class HttpClient {
 
             HttpResponse resp = new HttpResponse();
             InputStream is = conn.getSocket().getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, MonitorSettings.UTF8));
 
             //step 2.1 解析响应状态行
             String line = reader.readLine();
@@ -70,7 +70,8 @@ public class HttpClient {
             byte[] buff = new byte[1024];
             while ((size = is.read(buff)) > 0) {
                 bos.write(buff, 0, size);
-            }resp.setResponseBody(bos.toByteArray());
+            }
+            resp.setResponseBody(bos.toByteArray());
             resp.setResponseBody(bos.toByteArray());
             return resp;
         }

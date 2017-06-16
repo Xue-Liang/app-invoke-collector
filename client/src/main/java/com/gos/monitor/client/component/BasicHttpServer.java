@@ -25,34 +25,36 @@ public class BasicHttpServer {
     private static final ServerSocket HttpServer = createServerSocket();
 
     static {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                SIO.info(Thread.currentThread().getName() + " 程序退出时,正在关闭BasicHttpServer");
-                if (BasicHttpServer.INSTANCE.HttpServer != null) {
+        if (HttpServer != null) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    SIO.info(Thread.currentThread().getName() + " 程序退出时,正在关闭BasicHttpServer");
+                    if (BasicHttpServer.INSTANCE.HttpServer != null) {
 
-                    BasicHttpServer.INSTANCE.EXECUTOR.shutdown();
+                        BasicHttpServer.INSTANCE.EXECUTOR.shutdown();
 
-                    try {
-                        BasicHttpServer.INSTANCE.HttpServer.close();
-                    } catch (IOException e) {
+                        try {
+                            BasicHttpServer.INSTANCE.HttpServer.close();
+                        } catch (IOException e) {
 
+                        }
+                        try (Socket socket = new Socket("127.0.0.1", MonitorSettings.Client.Port())) {
+                            OutputStream os = socket.getOutputStream();
+                            os.write("GET /look/statistics HTTP/1.1\r\n".getBytes(MonitorSettings.UTF8));
+                            os.write("Content-Type:application/json;charset=UTF-8\r\n".getBytes(MonitorSettings.UTF8));
+                            os.write("Content-Length:0\r\n\r\n".getBytes(MonitorSettings.UTF8));
+                            os.flush();
+                        } catch (IOException e) {
+                            SIO.info("程序退出时,已通知BasicHttpServer执行关闭操作.");
+                        }
                     }
-                    try (Socket socket = new Socket("127.0.0.1", MonitorSettings.Client.Port)) {
-                        OutputStream os = socket.getOutputStream();
-                        os.write("GET /look/statistics HTTP/1.1\r\n".getBytes(MonitorSettings.UTF8));
-                        os.write("Content-Type:application/json;charset=UTF-8\r\n".getBytes(MonitorSettings.UTF8));
-                        os.write("Content-Length:0\r\n\r\n".getBytes(MonitorSettings.UTF8));
-                        os.flush();
-                    } catch (IOException e) {
-                        SIO.info("程序退出时,已通知BasicHttpServer执行关闭操作.");
-                    }
+                    SIO.info(Thread.currentThread().getName() + " 程序退出时,关闭BasicHttpServer完成");
                 }
-                SIO.info(Thread.currentThread().getName() + " 程序退出时,关闭BasicHttpServer完成");
-            }
-        };
-        Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + HttpServer.getLocalSocketAddress().toString());
-        Runtime.getRuntime().addShutdownHook(hook);
+            };
+            Thread hook = new Thread(r, "BasicHttpServerShutdownHook-" + HttpServer.getLocalSocketAddress().toString());
+            Runtime.getRuntime().addShutdownHook(hook);
+        }
     }
 
     private BasicHttpServer() {
@@ -61,7 +63,7 @@ public class BasicHttpServer {
 
     public int start() {
         if (this.HttpServer == null) {
-            SIO.error("监控插件启动失败.可能是因为端口号:[" + MonitorSettings.Client.Port + "]被占用.");
+            SIO.error("监控插件启动失败.可能是因为端口号:[" + MonitorSettings.Client.Port() + "]被占用.");
             return -1;
         }
         Runnable r = new Runnable() {
@@ -149,6 +151,7 @@ public class BasicHttpServer {
          * 查看统计数据的http接口
          *
          * @param os
+         *
          * @throws IOException
          */
         private void look(OutputStream os) throws IOException {
@@ -177,6 +180,7 @@ public class BasicHttpServer {
          * 中央服务器拉取统计数据的http接口
          *
          * @param os
+         *
          * @throws IOException
          */
         private void pull(OutputStream os) throws IOException {
@@ -205,6 +209,7 @@ public class BasicHttpServer {
          * 响应404
          *
          * @param os
+         *
          * @throws IOException
          */
         private void notFoundResource(OutputStream os) throws IOException {
@@ -238,10 +243,10 @@ public class BasicHttpServer {
 
     private static ServerSocket createServerSocket() {
 
-        int port = MonitorSettings.Client.Port;
+        int port = MonitorSettings.Client.Port();
 
         if (port < 1) {
-            SIO.error("应用:[" + MonitorSettings.Client.AppName + "] 监听端口:[" + MonitorSettings.Client.Port + "],端口号不合法.");
+            SIO.error("应用:[" + MonitorSettings.Client.AppName() + "] 监听端口:[" + MonitorSettings.Client.Port() + "],端口号不合法.");
             return null;
         }
 

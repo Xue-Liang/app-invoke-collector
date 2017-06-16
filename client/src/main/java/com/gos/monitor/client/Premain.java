@@ -8,7 +8,6 @@ import com.gos.monitor.common.io.SIO;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.util.UUID;
 
 /**
  * Created by xue on 2016-11-16.
@@ -22,21 +21,11 @@ public class Premain {
      * @param inst
      */
     public static void premain(String args, Instrumentation inst) {
-
-        SIO.info("premain 开始执行...");
+        SIO.sout("premain 开始执行...");
 
         printAbstract(inst);
 
-        SIO.info("插件配置:" + MonitorSettings.getString());
-
-        SIO.info("正在启动:" + MonitorSettings.Client.AppName);
-
-        String id = UUID.randomUUID().toString();
-        Class<?>[] loadedClasses = inst.getAllLoadedClasses();
-        SIO.info(id + " loadedClass.length=" + loadedClasses.length);
-        for (Class c : loadedClasses) {
-            SIO.info(id + " loadedClass: " + c.getCanonicalName());
-        }
+        SIO.sout("正在启动:" + MonitorSettings.Client.AppName());
 
         ClassFileTransformer transformer = new InvokeTraceTransformer();
 
@@ -44,22 +33,23 @@ public class Premain {
 
         start();
 
-        SIO.info("premain 执行完成...");
+        SIO.sout("premain 执行完成...");
     }
+
 
     /**
      * 打印参数示例
      */
     private static void printAbstract(Instrumentation inst) {
-        SIO.info(
+        SIO.sout(
                 "\n使用示例:\n 添加如下JVM参数:\n " +
-                        "-Dgos.properties.path=${directory}/parameter.properties " +
-                        "-javaagent:{directory}/gag-is-client.jar\n\n");
+                        "-Dgos.aic=${directory}/aci.properties " +
+                        "-javaagent:{directory}/AIC.jar\n\n");
         String support = "支持";
         String unsupport = "不支持";
-        SIO.info("是否支持类重新变型: " + (inst.isRetransformClassesSupported() ? support : unsupport));
-        SIO.info("是否支持类重新定义:" + (inst.isRedefineClassesSupported() ? support : unsupport));
-        SIO.info("是否支持本地方法前辍:" + (inst.isNativeMethodPrefixSupported() ? support : unsupport));
+        SIO.sout("是否支持类重新变型: " + (inst.isRetransformClassesSupported() ? support : unsupport));
+        SIO.sout("是否支持类重新定义:" + (inst.isRedefineClassesSupported() ? support : unsupport));
+        SIO.sout("是否支持本地方法前辍:" + (inst.isNativeMethodPrefixSupported() ? support : unsupport));
     }
 
     private static final Object Lock = new Object();

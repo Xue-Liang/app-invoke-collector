@@ -27,22 +27,22 @@ public class Register {
 
     public void registry(final int port) {
         if (port < 1) {
-            SIO.error("监控插件未请求中央服务器进行注册.可能是因为本地端口号:[" + MonitorSettings.Client.Port + "]被占用.");
+            SIO.error("监控插件未请求中央服务器进行注册.可能是因为本地端口号:[" + MonitorSettings.Client.Port() + "]被占用.");
             return;
         }
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                URI uri = URI.create(MonitorSettings.Client.RegistryServer);
+                URI uri = URI.create(MonitorSettings.Client.RegistryServer());
                 HttpRequest req = HttpRequest.create(uri, HttpRequest.RequestMethod.POST);
                 req.setHttpHeader("Host", uri.getHost() + ":" + uri.getPort());
                 req.setHttpHeader("Content-Type", "applicationn/json;charset=UTF-8");
                 req.setHttpHeader("connection", "close");
                 String json = "{" +
-                        "\"app\": \"" + MonitorSettings.Client.AppName + "\"," +
-                        "\"owner\":\"" + MonitorSettings.Client.AppOwner + "\"," +
-                        "\"contact\":" + MonitorSettings.Client.AppOwnerContact + "\"," +
-                        "\"interface:{"+
+                        "\"app\": \"" + MonitorSettings.Client.AppName() + "\"," +
+                        "\"owner\":\"" + MonitorSettings.Client.AppOwner() + "\"," +
+                        "\"contact\":" + MonitorSettings.Client.AppOwnerContact() + "\"," +
+                        "\"interface:{" +
                         "\"pull\":\"http://" + MonitorSettings.Client.LocalIpV4 + ":" + port + "/pull/statistics\"," +
                         "\"look\":\"http://" + MonitorSettings.Client.LocalIpV4 + ":" + port + "/look/statistics\"}" +
                         "}";
@@ -60,9 +60,9 @@ public class Register {
                         }
                     } catch (Exception e) {
                         registry = false;
-                        SIO.error("插件注册到:[" + MonitorSettings.Client.RegistryServer + "]时发生了异常.", e);
+                        SIO.error("插件注册到:[" + MonitorSettings.Client.RegistryServer() + "]时发生了异常.", e);
                     }
-                    SIO.info("插件注册到:[" + MonitorSettings.Client.RegistryServer + "]" + (registry ? "成功" : "失败") + "耗时:" + (System.nanoTime() - nano) / 1_000_000 + " ms");
+                    SIO.info("插件注册到:[" + MonitorSettings.Client.RegistryServer() + "]" + (registry ? "成功" : "失败") + "耗时:" + (System.nanoTime() - nano) / 1_000_000 + " ms");
 
                     if (!registry) {
                         Waiter.waitFor(Lock, 30000);
@@ -72,7 +72,7 @@ public class Register {
         };
 
         Thread t = new Thread(r);
-        t.setName("RegistryThread-" + MonitorSettings.Client.RegistryServer);
+        t.setName("RegistryThread-" + MonitorSettings.Client.RegistryServer());
         t.start();
     }
 }

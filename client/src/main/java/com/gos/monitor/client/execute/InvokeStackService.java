@@ -48,7 +48,7 @@ public class InvokeStackService {
         InvokeTimer timer = new InvokeTimer(stack.getId(), methodName);
         stack.push(timer);
 
-        if (MonitorSettings.Client.Logging) {
+        if (MonitorSettings.Client.Logging()) {
             SIO.info(" 第[" + Long.toString(timer.getStep()) + "]步开始 执行序列号:" + stack.getId() + " 方法:" + methodName);
         }
     }
@@ -72,7 +72,7 @@ public class InvokeStackService {
             timer.finish();
         }
         //---
-        if (MonitorSettings.Client.Logging) {
+        if (MonitorSettings.Client.Logging()) {
             SIO.info(" 第[" + Long.toString(timer.getStep()) + "]步完成 执行序列号:" + stack.getId() + " 方法:" + methodName + " -耗时约:" + (timer.getElapsed() / 1_000_000) + " ms(" + timer.getElapsed() + " ns).");
         }
 

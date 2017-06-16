@@ -82,9 +82,9 @@ public class InvokeStatisticsBucket implements Serializable {
             StringBuilder cup = new StringBuilder((128 + size - 1) + size * 156);
 
             cup.append("{").append("\"since\":").append(Long.toString(startTime)).append(",")
-                    .append("\"app\":\"").append(MonitorSettings.Client.AppName).append("\",")
-                    .append("\"owner\":\"").append(MonitorSettings.Client.AppOwner).append("\",")
-                    .append("\"contact\":\"").append(MonitorSettings.Client.AppOwnerContact).append("\",")
+                    .append("\"app\":\"").append(MonitorSettings.Client.AppName()).append("\",")
+                    .append("\"owner\":\"").append(MonitorSettings.Client.AppOwner()).append("\",")
+                    .append("\"contact\":\"").append(MonitorSettings.Client.AppOwnerContact()).append("\",")
                     .append("\"methods\":[");
             Iterator<Map.Entry<String, InvokeStatistics>> it = this.body.entrySet().iterator();
             for (int i = 0, len = size - 1; i < len && it.hasNext(); i++) {
